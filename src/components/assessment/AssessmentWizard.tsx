@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Trash2, ChevronRight, ChevronLeft, AlertCircle, CheckCircle2, Info, FileText, BarChart3, Settings2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import RiskHeatmap from '../visuals/RiskHeatmap';
 import IshikawaDiagram from '../visuals/IshikawaDiagram';
 import BowtieDiagram from '../visuals/BowtieDiagram';
@@ -514,10 +514,9 @@ const AssessmentWizard = () => {
             ))}
           </div>
           <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-            <motion.div 
-              className="bg-blue-600 h-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${((currentPhase + 1) / PHASES.length) * 100}%` }}
+            <div 
+              className="bg-blue-600 h-full transition-all duration-300"
+              style={{ width: `${((currentPhase + 1) / PHASES.length) * 100}%` }}
             />
           </div>
         </div>
@@ -549,17 +548,9 @@ const AssessmentWizard = () => {
             </div>
           </CardHeader>
           <CardContent className="p-8">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentPhase}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                {renderPhase()}
-              </motion.div>
-            </AnimatePresence>
+            <div className="transition-opacity duration-200">
+              {renderPhase()}
+            </div>
           </CardContent>
         </Card>
 
