@@ -2,6 +2,8 @@ export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export type FiveMCategory = 'Material' | 'Method' | 'Machine' | 'Manpower' | 'Measurement' | 'Environment';
 
+export type DeviationType = 'NO' | 'LESS' | 'MORE' | 'REVERSE' | 'OTHER THAN';
+
 export interface Control {
   id: string;
   type: 'Preventive' | 'Detective' | 'Mitigating';
@@ -19,36 +21,32 @@ export interface FiveWhys {
 
 export interface RiskItem {
   id: string;
-  stepId: string;
+  stepId?: string;
+  category: 'Material' | 'Process';
+  itemName: string; // Material name or Process step name
+  attribute?: string; // CMA for material, Parameter for process
+  cqa?: string;
   failureMode: string;
   effect: string;
   causes: {
     description: string;
     category: FiveMCategory;
   }[];
-  hazopGuideword?: string;
-  severity: number; // 1-3
-  occurrence: number; // 1-3
-  detection: number; // 1-3
+  deviations: DeviationType[];
+  severity: number;
+  occurrence: number;
+  detection: number;
   rpn: number;
   riskLevel: RiskLevel;
   controls: Control[];
   fiveWhys?: FiveWhys;
-  residualScoring?: {
-    severity: number;
-    occurrence: number;
-    detection: number;
-    rpn: number;
-    riskLevel: RiskLevel;
-  };
 }
 
-export interface ProcessStep {
+export interface FlowNode {
   id: string;
-  name: string;
-  description: string;
-  inputs: string[];
-  outputs: string[];
+  label: string;
+  type: 'Ingredient' | 'Process' | 'IPC' | 'Output';
+  details?: string;
 }
 
 export interface ProjectData {
@@ -56,9 +54,8 @@ export interface ProjectData {
   strength: string;
   dosageForm: string;
   targetMarket: string;
-  devStage: string;
-  processType: string;
+  assessor: string;
   scope: string;
-  steps: ProcessStep[];
+  flowNodes: FlowNode[];
   risks: RiskItem[];
 }

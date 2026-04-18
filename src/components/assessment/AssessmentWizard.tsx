@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ProjectData, RiskItem, ProcessStep } from '@/types/assessment';
+import { ProjectData, RiskItem } from '@/types/assessment';
 import { calculateRPN, getRiskLevel } from '@/lib/risk-utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,18 +8,20 @@ import { cn } from '@/lib/utils';
 
 import WizardStepper from './WizardStepper';
 import ProjectSetup from './ProjectSetup';
+import ProcessFlowchart from './ProcessFlowchart';
+import RiskIdentification from './RiskIdentification';
 import RiskHeatmap from '../visuals/RiskHeatmap';
 import IshikawaDiagram from '../visuals/IshikawaDiagram';
 import BowtieDiagram from '../visuals/BowtieDiagram';
 
 const PHASES = [
   'Setup',
-  'Process',
-  'Risk ID',
+  'Flowchart',
+  'Material Risk',
+  'Process Risk',
   'Scoring',
   'Dashboard',
   'Analysis',
-  'Controls',
   'Visuals'
 ];
 
@@ -30,10 +32,9 @@ const AssessmentWizard = () => {
     strength: '',
     dosageForm: '',
     targetMarket: '',
-    devStage: '',
-    processType: '',
+    assessor: '',
     scope: '',
-    steps: [],
+    flowNodes: [],
     risks: []
   });
 
@@ -45,7 +46,13 @@ const AssessmentWizard = () => {
     switch (currentPhase) {
       case 0:
         return <ProjectSetup project={project} updateProject={updateProject} />;
-      case 4:
+      case 1:
+        return <ProcessFlowchart project={project} updateProject={updateProject} />;
+      case 2:
+        return <RiskIdentification project={project} updateProject={updateProject} category="Material" />;
+      case 3:
+        return <RiskIdentification project={project} updateProject={updateProject} category="Process" />;
+      case 5:
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -97,7 +104,6 @@ const AssessmentWizard = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] selection:bg-primary/10">
-      {/* Top Navigation Bar */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -113,17 +119,11 @@ const AssessmentWizard = () => {
             <Button variant="ghost" size="sm" className="text-slate-500 font-bold text-xs uppercase tracking-wider">
               <FileText className="mr-2 h-4 w-4" /> Export Report
             </Button>
-            <div className="h-8 w-px bg-slate-200" />
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200" />
-              <span className="text-xs font-bold text-slate-600">QA Lead</span>
-            </div>
           </div>
         </div>
       </nav>
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-        {/* Stepper Section */}
         <div className="bg-white rounded-[2rem] shadow-sm border border-slate-200/60 p-2">
           <WizardStepper 
             phases={PHASES} 
@@ -132,7 +132,6 @@ const AssessmentWizard = () => {
           />
         </div>
 
-        {/* Content Section */}
         <div className="relative">
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -165,21 +164,6 @@ const AssessmentWizard = () => {
           </div>
         </div>
       </main>
-
-      {/* Footer Info */}
-      <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-200/60">
-        <div className="flex flex-wrap justify-center gap-12 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
-          <div className="flex items-center gap-2 hover:text-primary transition-colors cursor-default">
-            <ShieldCheck size={14} /> ICH Q9 Compliant
-          </div>
-          <div className="flex items-center gap-2 hover:text-primary transition-colors cursor-default">
-            <Activity size={14} /> Real-time Risk Scoring
-          </div>
-          <div className="flex items-center gap-2 hover:text-primary transition-colors cursor-default">
-            <FileText size={14} /> Regulatory Ready
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
