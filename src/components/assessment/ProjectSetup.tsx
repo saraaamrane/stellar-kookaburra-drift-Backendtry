@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { Beaker, Globe, Layers, Target } from 'lucide-react';
+import { Beaker, Factory, FlaskConical, ClipboardList } from 'lucide-react';
 
 interface ProjectSetupProps {
   project: ProjectData;
@@ -14,82 +14,105 @@ interface ProjectSetupProps {
 
 const ProjectSetup: React.FC<ProjectSetupProps> = ({ project, updateProject }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-6">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-primary font-semibold">
-            <Beaker size={20} />
-            <h3>Product Details</h3>
+        <Card className="border-2 shadow-sm overflow-hidden">
+          <div className="bg-slate-50 px-6 py-3 border-b flex items-center gap-2">
+            <Beaker size={18} className="text-primary" />
+            <h3 className="font-bold text-slate-700 uppercase tracking-wider text-xs">Product Identification</h3>
           </div>
-          <div className="grid gap-4">
+          <CardContent className="p-6 space-y-4">
             <div className="space-y-2">
-              <Label className="text-slate-500">Product Name</Label>
+              <Label className="text-slate-500 font-semibold">Product Name *</Label>
               <Input 
                 value={project.productName} 
                 onChange={e => updateProject({ productName: e.target.value })} 
-                placeholder="e.g. Metformin/Sitagliptin FDC"
-                className="bg-white/50 border-slate-200 focus:ring-primary/20"
+                placeholder="e.g. LCE Tablets (Levodopa/Carbidopa/Entacapone)"
+                className="h-11 border-slate-200 focus:ring-primary/20"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-slate-500">Strength</Label>
+              <Label className="text-slate-500 font-semibold">Dosage Form *</Label>
+              <Select value={project.dosageForm} onValueChange={v => updateProject({ dosageForm: v })}>
+                <SelectTrigger className="h-11 border-slate-200">
+                  <SelectValue placeholder="Select dosage form" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Tablet (Film-coated)">Tablet (Film-coated)</SelectItem>
+                  <SelectItem value="Tablet (Immediate Release)">Tablet (Immediate Release)</SelectItem>
+                  <SelectItem value="Capsule (Hard Gelatin)">Capsule (Hard Gelatin)</SelectItem>
+                  <SelectItem value="Injectable">Injectable</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-slate-500 font-semibold">Strength</Label>
               <Input 
                 value={project.strength} 
                 onChange={e => updateProject({ strength: e.target.value })} 
-                placeholder="e.g. 500mg/50mg"
-                className="bg-white/50 border-slate-200"
+                placeholder="e.g. 100mg/25mg/200mg"
+                className="h-11 border-slate-200"
               />
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-primary font-semibold">
-            <Layers size={20} />
-            <h3>Formulation</h3>
+        <Card className="border-2 shadow-sm overflow-hidden">
+          <div className="bg-slate-50 px-6 py-3 border-b flex items-center gap-2">
+            <Factory size={18} className="text-primary" />
+            <h3 className="font-bold text-slate-700 uppercase tracking-wider text-xs">Manufacturing Context</h3>
           </div>
-          <div className="space-y-2">
-            <Label className="text-slate-500">Dosage Form</Label>
-            <Select value={project.dosageForm} onValueChange={v => updateProject({ dosageForm: v })}>
-              <SelectTrigger className="bg-white/50 border-slate-200">
-                <SelectValue placeholder="Select form" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Tablet">Tablet</SelectItem>
-                <SelectItem value="Capsule">Capsule</SelectItem>
-                <SelectItem value="Liquid">Liquid</SelectItem>
-                <SelectItem value="Injectable">Injectable</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+          <CardContent className="p-6 space-y-4">
+            <div className="space-y-2">
+              <Label className="text-slate-500 font-semibold">Manufacturing Site *</Label>
+              <Input 
+                value={project.assessor} // Reusing assessor field for site for now
+                onChange={e => updateProject({ assessor: e.target.value })} 
+                placeholder="e.g. In-house Facility A"
+                className="h-11 border-slate-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-slate-500 font-semibold">Development Phase</Label>
+              <Select defaultValue="Validation Batches">
+                <SelectTrigger className="h-11 border-slate-200">
+                  <SelectValue placeholder="Select phase" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Validation Batches">Validation Batches</SelectItem>
+                  <SelectItem value="Technology Transfer">Technology Transfer</SelectItem>
+                  <SelectItem value="Commercial Production">Commercial Production</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="space-y-6">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-primary font-semibold">
-            <Globe size={20} />
-            <h3>Market & Scope</h3>
+        <Card className="border-2 shadow-sm overflow-hidden h-full">
+          <div className="bg-slate-50 px-6 py-3 border-b flex items-center gap-2">
+            <FlaskConical size={18} className="text-primary" />
+            <h3 className="font-bold text-slate-700 uppercase tracking-wider text-xs">API Composition</h3>
           </div>
-          <div className="space-y-2">
-            <Label className="text-slate-500">Target Market</Label>
-            <Input 
-              value={project.targetMarket} 
-              onChange={e => updateProject({ targetMarket: e.target.value })} 
-              placeholder="e.g. EU/US/Global"
-              className="bg-white/50 border-slate-200"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-slate-500">Scope Boundaries</Label>
-            <Textarea 
-              value={project.scope} 
-              onChange={e => updateProject({ scope: e.target.value })} 
-              placeholder="Define what is included/excluded in this assessment..."
-              className="bg-white/50 border-slate-200 min-h-[120px] resize-none"
-            />
-          </div>
-        </div>
+          <CardContent className="p-6 space-y-4">
+            <div className="space-y-2">
+              <Label className="text-slate-500 font-semibold">Active Pharmaceutical Ingredients (APIs) *</Label>
+              <Textarea 
+                placeholder="List all APIs with strengths..."
+                className="min-h-[200px] border-slate-200 resize-none"
+              />
+              <p className="text-[11px] text-slate-400 italic">Include CAS numbers or specific grades if applicable.</p>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-slate-500 font-semibold">Known Constraints / Assumptions</Label>
+              <Textarea 
+                placeholder="Document any limitations or assumptions..."
+                className="min-h-[120px] border-slate-200 resize-none"
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
