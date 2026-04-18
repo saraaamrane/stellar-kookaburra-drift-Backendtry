@@ -4,42 +4,41 @@ export type FiveMCategory = 'Material' | 'Method' | 'Machine' | 'Manpower' | 'Me
 
 export type DeviationType = 'NO' | 'LESS' | 'MORE' | 'REVERSE' | 'OTHER THAN';
 
-export interface Control {
-  id: string;
-  type: 'Preventive' | 'Detective' | 'Mitigating';
-  description: string;
-  responsibility: string;
-  deadline: string;
-  status: 'Planned' | 'In Progress' | 'Completed';
-}
-
-export interface FiveWhys {
-  whys: string[];
-  rootCause: string;
-  classification: string;
-}
-
 export interface RiskItem {
   id: string;
-  stepId?: string;
   category: 'Material' | 'Process';
-  itemName: string; // Material name or Process step name
-  attribute?: string; // CMA for material, Parameter for process
-  cqa?: string;
+  // Section 1: Identification
+  itemName: string; // Material name or Process step
+  itemType?: string; // Material Type or Process Parameter
+  attribute: string; // CMA or CPP
+  cqa: string; // Affected CQA
+  target?: string; // CPP Target (for process)
+  
+  // Section 2: Failure Mode & Effect
   failureMode: string;
   effect: string;
-  causes: {
-    description: string;
-    category: FiveMCategory;
-  }[];
-  deviations: DeviationType[];
+  
+  // Section 3: Scoring
   severity: number;
   occurrence: number;
   detection: number;
   rpn: number;
   riskLevel: RiskLevel;
-  controls: Control[];
-  fiveWhys?: FiveWhys;
+  
+  // Section 4: Integrated 5M
+  primary5MCategory: FiveMCategory;
+  primary5MExplanation: string;
+  secondary5MCategory?: FiveMCategory;
+  secondary5MExplanation: string;
+  
+  // Section 5: Deviations
+  deviations: DeviationType[];
+  deviationNotes: string;
+  
+  // Section 6: Control Strategy
+  preventiveControls: string;
+  detectiveControls: string;
+  mitigatingControls: string;
 }
 
 export interface FlowNode {
