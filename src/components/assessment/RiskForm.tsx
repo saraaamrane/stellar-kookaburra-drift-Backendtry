@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Star, AlertTriangle, ShieldCheck, Zap, Info } from 'lucide-react';
+import { Trash2, Star, AlertTriangle, ShieldCheck, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { calculateRPN, getRiskLevel } from '@/lib/risk-utils';
 
@@ -17,7 +17,7 @@ interface RiskFormProps {
 }
 
 const DEVIATIONS: DeviationType[] = ['NO', 'LESS', 'MORE', 'REVERSE', 'OTHER THAN'];
-const FIVE_M: FiveMCategory[] = ['Material', 'Method', 'Machine', 'Manpower', 'Measurement', 'Environment'];
+const FIVE_M: FiveMCategory[] = ['Material', 'Method', 'Machine', 'Manpower', 'Medium'];
 
 const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
   const handleScoreChange = (field: 'severity' | 'occurrence' | 'detection', value: string) => {

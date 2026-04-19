@@ -1,4 +1,4 @@
-import { RiskLevel, RiskItem } from '../types/assessment';
+import { RiskLevel } from '../types/assessment';
 
 export const calculateRPN = (s: number, o: number, d: number): number => s * o * d;
 
@@ -23,7 +23,7 @@ export const HAZOP_GUIDEWORDS = [
 ];
 
 export const FIVE_M_CATEGORIES = [
-  'Material', 'Method', 'Machine', 'Manpower', 'Measurement', 'Environment'
+  'Material', 'Method', 'Machine', 'Manpower', 'Medium'
 ];
 
 export const ROOT_CAUSE_CLASSES = [
@@ -31,7 +31,6 @@ export const ROOT_CAUSE_CLASSES = [
   'Process/procedure weakness',
   'Equipment issue',
   'Human/training issue',
-  'Measurement/control issue',
-  'Environmental issue',
+  'Environmental/Medium issue',
   'System/management gap'
 ];

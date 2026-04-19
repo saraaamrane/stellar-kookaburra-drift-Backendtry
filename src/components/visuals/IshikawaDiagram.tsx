@@ -1,12 +1,13 @@
 import React from 'react';
 import { RiskItem, FiveMCategory } from '@/types/assessment';
+import { cn } from '@/lib/utils';
 
 interface IshikawaDiagramProps {
   risk: RiskItem;
 }
 
 const IshikawaDiagram: React.FC<IshikawaDiagramProps> = ({ risk }) => {
-  const categories: FiveMCategory[] = ['Material', 'Method', 'Machine', 'Manpower', 'Measurement', 'Environment'];
+  const categories: FiveMCategory[] = ['Material', 'Method', 'Machine', 'Manpower', 'Medium'];
   
   const getExplanationForCategory = (cat: FiveMCategory) => {
     if (risk.primary5MCategory === cat) return risk.primary5MExplanation;
@@ -55,7 +56,7 @@ const IshikawaDiagram: React.FC<IshikawaDiagramProps> = ({ risk }) => {
           })}
 
           {/* Bottom Bones */}
-          {categories.slice(3, 6).map((cat, i) => {
+          {categories.slice(3, 5).map((cat, i) => {
             const explanation = getExplanationForCategory(cat);
             const isPrimary = risk.primary5MCategory === cat;
             return (
@@ -83,5 +84,4 @@ const IshikawaDiagram: React.FC<IshikawaDiagramProps> = ({ risk }) => {
   );
 };
 
-import { cn } from '@/lib/utils';
 export default IshikawaDiagram;

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProjectData, RiskItem } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, ChevronLeft, ShieldCheck, LayoutDashboard, Download, Printer, FileText, BarChart3 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ShieldCheck, LayoutDashboard, Download, Printer, Link, Check, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 import WizardStepper from './WizardStepper';
 import ProjectSetup from './ProjectSetup';
@@ -11,7 +12,7 @@ import ProcessFlowchart from './ProcessFlowchart';
 import RiskIdentification from './RiskIdentification';
 import RiskHeatmap from '../visuals/RiskHeatmap';
 import IshikawaDiagram from '../visuals/IshikawaDiagram';
-import BowtieDiagram from '../visuals/BowtieDiagram';
+import { getShareableLink, decodeProjectData } from '@/utils/share';
 
 const PHASES = [
   'Welcome',
@@ -25,6 +26,7 @@ const PHASES = [
 
 const AssessmentWizard = () => {
   const [currentPhase, setCurrentPhase] = useState(0);
+  const [copied, setCopied] = useState(false);
   const [project, setProject] = useState<ProjectData>({
     productName: '',
     strength: '',
@@ -36,8 +38,30 @@ const AssessmentWizard = () => {
     risks: []
   });
 
+  // Load data from URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const encodedData = params.get('data');
+    if (encodedData) {
+      const decoded = decodeProjectData(encodedData);
+      if (decoded) {
+        setProject(decoded);
+        setCurrentPhase(5); // Jump to dashboard if loading data
+        toast.success("Assessment data loaded from link!");
+      }
+    }
+  }, []);
+
   const updateProject = (updates: Partial<ProjectData>) => {
     setProject(prev => ({ ...prev, ...updates }));
+  };
+
+  const handleCopyLink = () => {
+    const link = getShareableLink(project);
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    toast.success("Shareable link copied to clipboard!");
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const renderPhase = () => {
@@ -110,7 +134,7 @@ const AssessmentWizard = () => {
                     <BarChart3 size={20} className="text-primary" /> 5M Distribution
                   </h3>
                   <div className="space-y-4">
-                    {['Material', 'Method', 'Machine', 'Manpower', 'Measurement', 'Environment'].map(cat => {
+                    {['Material', 'Method', 'Machine', 'Manpower', 'Medium'].map(cat => {
                       const count = project.risks.filter(r => r.primary5MCategory === cat).length;
                       const percentage = project.risks.length > 0 ? (count / project.risks.length) * 100 : 0;
                       return (
@@ -136,7 +160,6 @@ const AssessmentWizard = () => {
                 {project.risks.filter(r => r.riskLevel === 'HIGH' || r.riskLevel === 'MEDIUM').map(risk => (
                   <div key={risk.id} className="space-y-8">
                     <IshikawaDiagram risk={risk} />
-                    {/* BowtieDiagram would go here if updated to new structure */}
                   </div>
                 ))}
               </div>
@@ -162,14 +185,21 @@ const AssessmentWizard = () => {
                     <p className="font-bold text-lg">{project.assessor || 'Not specified'}</p>
                   </div>
                 </div>
-                <div className="flex gap-4">
-                  <Button className="flex-1 h-12 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Button onClick={handleCopyLink} className="h-12 rounded-xl font-bold bg-blue-600 hover:bg-blue-700">
+                    {copied ? <Check className="mr-2 h-4 w-4" /> : <Link className="mr-2 h-4 w-4" />}
+                    {copied ? "Link Copied!" : "Copy Shareable Link"}
+                  </Button>
+                  <Button className="h-12 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700">
                     <Download className="mr-2 h-4 w-4" /> Export JSON
                   </Button>
-                  <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold border-2">
+                  <Button variant="outline" className="h-12 rounded-xl font-bold border-2">
                     <Printer className="mr-2 h-4 w-4" /> Print PDF
                   </Button>
                 </div>
+                <p className="text-center text-xs text-slate-400 italic">
+                  The shareable link contains all your assessment data. Anyone with the link can view your work.
+                </p>
               </CardContent>
             </Card>
           </div>

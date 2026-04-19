@@ -1,6 +1,6 @@
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
-export type FiveMCategory = 'Material' | 'Method' | 'Machine' | 'Manpower' | 'Measurement' | 'Environment';
+export type FiveMCategory = 'Material' | 'Method' | 'Machine' | 'Manpower' | 'Medium';
 
 export type DeviationType = 'NO' | 'LESS' | 'MORE' | 'REVERSE' | 'OTHER THAN';
 
