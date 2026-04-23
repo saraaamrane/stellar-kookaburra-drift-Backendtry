@@ -64,6 +64,10 @@ const AssessmentWizard = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   const renderPhase = () => {
     switch (currentPhase) {
       case 0:
@@ -110,7 +114,7 @@ const AssessmentWizard = () => {
       case 5:
         return (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 no-print">
               {[
                 { label: 'Total Risks', count: project.risks.length, color: 'text-slate-600', bg: 'bg-white border-2' },
                 { label: 'High Risk', count: project.risks.filter(r => r.riskLevel === 'HIGH').length, color: 'text-rose-600', bg: 'bg-rose-50 border-rose-100 border-2' },
@@ -158,7 +162,7 @@ const AssessmentWizard = () => {
               <div className="space-y-12">
                 <h3 className="text-2xl font-black text-slate-900 border-b-4 border-slate-900 pb-2 inline-block">Detailed Visualizations</h3>
                 {project.risks.filter(r => r.riskLevel === 'HIGH' || r.riskLevel === 'MEDIUM').map(risk => (
-                  <div key={risk.id} className="space-y-8">
+                  <div key={risk.id} className="space-y-8 ishikawa-container">
                     <IshikawaDiagram risk={risk} />
                   </div>
                 ))}
@@ -185,7 +189,7 @@ const AssessmentWizard = () => {
                     <p className="font-bold text-lg">{project.assessor || 'Not specified'}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 action-buttons-container">
                   <Button onClick={handleCopyLink} className="h-12 rounded-xl font-bold bg-blue-600 hover:bg-blue-700">
                     {copied ? <Check className="mr-2 h-4 w-4" /> : <Link className="mr-2 h-4 w-4" />}
                     {copied ? "Link Copied!" : "Copy Shareable Link"}
@@ -193,11 +197,11 @@ const AssessmentWizard = () => {
                   <Button className="h-12 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700">
                     <Download className="mr-2 h-4 w-4" /> Export JSON
                   </Button>
-                  <Button variant="outline" className="h-12 rounded-xl font-bold border-2">
+                  <Button variant="outline" onClick={handlePrint} className="h-12 rounded-xl font-bold border-2">
                     <Printer className="mr-2 h-4 w-4" /> Print PDF
                   </Button>
                 </div>
-                <p className="text-center text-xs text-slate-400 italic">
+                <p className="text-center text-xs text-slate-400 italic no-print">
                   The shareable link contains all your assessment data. Anyone with the link can view your work.
                 </p>
               </CardContent>
@@ -211,7 +215,7 @@ const AssessmentWizard = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] selection:bg-primary/10">
-      <header className="bg-slate-900 text-white px-8 py-8 shadow-2xl border-b-4 border-primary">
+      <header className="bg-slate-900 text-white px-8 py-8 shadow-2xl border-b-4 border-primary no-print">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -236,7 +240,7 @@ const AssessmentWizard = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-8 -mt-6">
+      <div className="max-w-7xl mx-auto px-8 -mt-6 wizard-stepper-container no-print">
         <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-200 p-1 overflow-hidden">
           <WizardStepper 
             phases={PHASES} 
@@ -248,7 +252,7 @@ const AssessmentWizard = () => {
 
       <main className="max-w-7xl mx-auto px-8 py-12">
         {currentPhase > 0 && (
-          <div className="flex justify-between items-end mb-10">
+          <div className="flex justify-between items-end mb-10 no-print">
             <div>
               <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-1 uppercase">{PHASES[currentPhase]}</h2>
               <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Step {currentPhase + 1} of {PHASES.length}</p>
