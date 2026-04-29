@@ -1,13 +1,8 @@
 import { ProjectData } from '@/types/assessment';
 
-/**
- * Encodes project data into a base64 string for URL sharing
- */
 export const encodeProjectData = (data: ProjectData): string => {
   try {
     const jsonString = JSON.stringify(data);
-    // Using btoa for simple base64 encoding. 
-    // For production, consider a more robust compression like pako/zlib if data gets very large.
     return btoa(encodeURIComponent(jsonString));
   } catch (error) {
     console.error("Failed to encode project data:", error);
@@ -15,9 +10,6 @@ export const encodeProjectData = (data: ProjectData): string => {
   }
 };
 
-/**
- * Decodes project data from a base64 string
- */
 export const decodeProjectData = (encodedData: string): ProjectData | null => {
   try {
     const jsonString = decodeURIComponent(atob(encodedData));
@@ -28,9 +20,6 @@ export const decodeProjectData = (encodedData: string): ProjectData | null => {
   }
 };
 
-/**
- * Generates a full shareable URL
- */
 export const getShareableLink = (data: ProjectData): string => {
   const encoded = encodeProjectData(data);
   const url = new URL(window.location.href);

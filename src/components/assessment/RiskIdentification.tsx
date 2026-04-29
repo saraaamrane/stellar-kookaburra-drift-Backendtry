@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { ProjectData, RiskItem } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
@@ -17,7 +19,6 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
       id: crypto.randomUUID(),
       category,
       itemName: '',
-      itemType: '',
       attribute: '',
       cqa: '',
       failureMode: '',
@@ -57,7 +58,7 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
         <div className="flex items-center gap-4">
           <div className={cn(
             "w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg",
-            category === 'Material' ? "bg-blue-600 shadow-blue-100" : "bg-purple-600 shadow-purple-100"
+            category === 'Material' ? "bg-blue-600" : "bg-purple-600"
           )}>
             <AlertCircle className="text-white" size={28} />
           </div>
@@ -66,18 +67,15 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
             <p className="text-sm text-slate-500 font-medium">Integrated FMEA + 5M Root Cause Analysis</p>
           </div>
         </div>
-        <div className="flex gap-3">
-          <Button onClick={addRisk} className="rounded-xl font-black h-12 px-6 shadow-lg shadow-primary/20">
-            <Plus className="mr-2 h-5 w-5" /> ADD {category.toUpperCase()} RISK
-          </Button>
-        </div>
+        <Button onClick={addRisk} className="rounded-xl font-black h-12 px-6">
+          <Plus className="mr-2 h-5 w-5" /> ADD {category.toUpperCase()} RISK
+        </Button>
       </div>
 
       <div className="space-y-12">
         {filteredRisks.length === 0 ? (
           <div className="text-center py-20 bg-slate-50 rounded-3xl border-4 border-dashed border-slate-200">
             <p className="text-slate-400 font-bold">No {category.toLowerCase()} risks identified yet.</p>
-            <Button variant="link" onClick={addRisk} className="text-primary font-black">Click here to add your first risk</Button>
           </div>
         ) : (
           filteredRisks.map((risk) => (

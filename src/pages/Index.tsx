@@ -1,3 +1,5 @@
+"use client";
+
 import AssessmentWizard from "@/components/assessment/AssessmentWizard";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 

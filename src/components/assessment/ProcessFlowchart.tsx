@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { ProjectData, FlowNode } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
@@ -62,10 +64,10 @@ const ProcessFlowchart: React.FC<ProcessFlowchartProps> = ({ project, updateProj
               <Input 
                 value={newNode.label} 
                 onChange={e => setNewNode({ ...newNode, label: e.target.value })}
-                placeholder="e.g. Group A Ingredients or Granulation"
+                placeholder="e.g. Granulation"
               />
             </div>
-            <Button onClick={addNode} className="bg-primary shadow-lg shadow-primary/20">
+            <Button onClick={addNode} className="bg-primary">
               <Plus className="mr-2 h-4 w-4" /> Add to Flow
             </Button>
           </div>
@@ -91,7 +93,7 @@ const ProcessFlowchart: React.FC<ProcessFlowchartProps> = ({ project, updateProj
                     variant="ghost" 
                     size="icon" 
                     onClick={() => removeNode(node.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-600 hover:bg-red-50"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400"
                   >
                     <Trash2 size={16} />
                   </Button>

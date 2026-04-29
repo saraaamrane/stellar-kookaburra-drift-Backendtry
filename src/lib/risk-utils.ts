@@ -25,12 +25,3 @@ export const HAZOP_GUIDEWORDS = [
 export const FIVE_M_CATEGORIES = [
   'Material', 'Method', 'Machine', 'Manpower', 'Medium'
 ];
-
-export const ROOT_CAUSE_CLASSES = [
-  'Material issue',
-  'Process/procedure weakness',
-  'Equipment issue',
-  'Human/training issue',
-  'Environmental/Medium issue',
-  'System/management gap'
-];

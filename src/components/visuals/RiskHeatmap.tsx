@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { RiskItem } from '@/types/assessment';
 import { cn } from '@/lib/utils';
@@ -12,11 +14,9 @@ const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ risks }) => {
   };
 
   const getCellColor = (s: number, o: number) => {
-    const rpn_min_d1 = s * o * 1;
-    const rpn_max_d3 = s * o * 3;
-    
-    if (rpn_max_d3 >= 18 || (s === 3)) return 'bg-red-100 border-red-200';
-    if (rpn_max_d3 >= 8) return 'bg-amber-100 border-amber-200';
+    const rpn_max = s * o * 3;
+    if (rpn_max >= 18 || s === 3) return 'bg-red-100 border-red-200';
+    if (rpn_max >= 8) return 'bg-amber-100 border-amber-200';
     return 'bg-emerald-100 border-emerald-200';
   };
 
@@ -28,18 +28,11 @@ const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ risks }) => {
         {[1, 2, 3].map(o => (
           <div key={o} className="text-center text-xs font-medium text-slate-500">Occ: {o}</div>
         ))}
-        
         {[3, 2, 1].map(s => (
           <React.Fragment key={s}>
             <div className="flex items-center justify-end pr-2 text-xs font-medium text-slate-500">Sev: {s}</div>
             {[1, 2, 3].map(o => (
-              <div 
-                key={`${s}-${o}`} 
-                className={cn(
-                  "h-16 border-2 rounded-lg flex items-center justify-center text-xl font-bold transition-all",
-                  getCellColor(s, o)
-                )}
-              >
+              <div key={`${s}-${o}`} className={cn("h-16 border-2 rounded-lg flex items-center justify-center text-xl font-bold", getCellColor(s, o))}>
                 {getCellRisks(s, o)}
               </div>
             ))}

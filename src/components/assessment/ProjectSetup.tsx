@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { ProjectData } from '@/types/assessment';
 import { Label } from '@/components/ui/label';
@@ -5,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { Beaker, Factory, FlaskConical, ClipboardList } from 'lucide-react';
+import { Beaker, Factory, FlaskConical } from 'lucide-react';
 
 interface ProjectSetupProps {
   project: ProjectData;
@@ -27,8 +29,8 @@ const ProjectSetup: React.FC<ProjectSetupProps> = ({ project, updateProject }) =
               <Input 
                 value={project.productName} 
                 onChange={e => updateProject({ productName: e.target.value })} 
-                placeholder="e.g. LCE Tablets (Levodopa/Carbidopa/Entacapone)"
-                className="h-11 border-slate-200 focus:ring-primary/20"
+                placeholder="e.g. LCE Tablets"
+                className="h-11 border-slate-200"
               />
             </div>
             <div className="space-y-2">
@@ -39,56 +41,14 @@ const ProjectSetup: React.FC<ProjectSetupProps> = ({ project, updateProject }) =
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Tablet (Film-coated)">Tablet (Film-coated)</SelectItem>
-                  <SelectItem value="Tablet (Immediate Release)">Tablet (Immediate Release)</SelectItem>
                   <SelectItem value="Capsule (Hard Gelatin)">Capsule (Hard Gelatin)</SelectItem>
                   <SelectItem value="Injectable">Injectable</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-slate-500 font-semibold">Strength</Label>
-              <Input 
-                value={project.strength} 
-                onChange={e => updateProject({ strength: e.target.value })} 
-                placeholder="e.g. 100mg/25mg/200mg"
-                className="h-11 border-slate-200"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-2 shadow-sm overflow-hidden">
-          <div className="bg-slate-50 px-6 py-3 border-b flex items-center gap-2">
-            <Factory size={18} className="text-primary" />
-            <h3 className="font-bold text-slate-700 uppercase tracking-wider text-xs">Manufacturing Context</h3>
-          </div>
-          <CardContent className="p-6 space-y-4">
-            <div className="space-y-2">
-              <Label className="text-slate-500 font-semibold">Manufacturing Site *</Label>
-              <Input 
-                value={project.assessor} // Reusing assessor field for site for now
-                onChange={e => updateProject({ assessor: e.target.value })} 
-                placeholder="e.g. In-house Facility A"
-                className="h-11 border-slate-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-slate-500 font-semibold">Development Phase</Label>
-              <Select defaultValue="Validation Batches">
-                <SelectTrigger className="h-11 border-slate-200">
-                  <SelectValue placeholder="Select phase" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Validation Batches">Validation Batches</SelectItem>
-                  <SelectItem value="Technology Transfer">Technology Transfer</SelectItem>
-                  <SelectItem value="Commercial Production">Commercial Production</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </CardContent>
         </Card>
       </div>
-
       <div className="space-y-6">
         <Card className="border-2 shadow-sm overflow-hidden h-full">
           <div className="bg-slate-50 px-6 py-3 border-b flex items-center gap-2">
@@ -101,14 +61,6 @@ const ProjectSetup: React.FC<ProjectSetupProps> = ({ project, updateProject }) =
               <Textarea 
                 placeholder="List all APIs with strengths..."
                 className="min-h-[200px] border-slate-200 resize-none"
-              />
-              <p className="text-[11px] text-slate-400 italic">Include CAS numbers or specific grades if applicable.</p>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-slate-500 font-semibold">Known Constraints / Assumptions</Label>
-              <Textarea 
-                placeholder="Document any limitations or assumptions..."
-                className="min-h-[120px] border-slate-200 resize-none"
               />
             </div>
           </CardContent>
