@@ -17,9 +17,10 @@ import ProcessFlowchart from './ProcessFlowchart';
 import RiskIdentification from './RiskIdentification';
 import RiskHeatmap from '../visuals/RiskHeatmap';
 import IshikawaDiagram from '../visuals/IshikawaDiagram';
+import BowtieDiagram from '../visuals/BowtieDiagram';
 import AssessmentReport from './AssessmentReport';
 import CollaboratorManager from './CollaboratorManager';
-import { getShareableLink, decodeProjectData } from '@/utils/share';
+import { getShareableLink } from '@/utils/share';
 
 const PHASES = [
   'Welcome',
@@ -148,6 +149,7 @@ const AssessmentWizard = () => {
       case 3: return <RiskIdentification project={project} updateProject={updateProject} category="Material" />;
       case 4: return <RiskIdentification project={project} updateProject={updateProject} category="Process" />;
       case 5:
+        const highPriorityRisks = project.risks.filter(r => r.riskLevel === 'HIGH' || r.riskLevel === 'MEDIUM');
         return (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -177,9 +179,18 @@ const AssessmentWizard = () => {
                 </CardContent>
               </Card>
             </div>
-            {project.risks.filter(r => r.riskLevel === 'HIGH' || r.riskLevel === 'MEDIUM').map(risk => (
-              <IshikawaDiagram key={risk.id} risk={risk} />
-            ))}
+            
+            {highPriorityRisks.length > 0 && (
+              <div className="space-y-12">
+                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight border-b-4 border-slate-900 pb-2">Deep Analysis: High Priority Risks</h3>
+                {highPriorityRisks.map(risk => (
+                  <div key={risk.id} className="space-y-8">
+                    <IshikawaDiagram risk={risk} />
+                    <BowtieDiagram risk={risk} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
       case 6:

@@ -18,7 +18,6 @@ interface RiskFormProps {
   onRemove: () => void;
 }
 
-const DEVIATIONS: DeviationType[] = ['NO', 'LESS', 'MORE', 'REVERSE', 'OTHER THAN'];
 const FIVE_M: FiveMCategory[] = ['Material', 'Method', 'Machine', 'Manpower', 'Medium'];
 
 const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
@@ -31,13 +30,6 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
     updates.rpn = calculateRPN(s, o, d);
     updates.riskLevel = getRiskLevel(s, o, d);
     onUpdate(updates);
-  };
-
-  const toggleDeviation = (dev: DeviationType) => {
-    const deviations = risk.deviations.includes(dev)
-      ? risk.deviations.filter(d => d !== dev)
-      : [...risk.deviations, dev];
-    onUpdate({ deviations });
   };
 
   return (
@@ -84,11 +76,33 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
             <div className="space-y-1.5">
               <Label className="text-[10px] font-bold uppercase text-slate-400">Severity</Label>
               <Select value={risk.severity.toString()} onValueChange={v => handleScoreChange('severity', v)}>
-                <SelectTrigger className="w-40 h-10 font-bold"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-32 h-10 font-bold"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="1">1 - Low</SelectItem>
                   <SelectItem value="2">2 - Moderate</SelectItem>
                   <SelectItem value="3">3 - High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-bold uppercase text-slate-400">Occurrence</Label>
+              <Select value={risk.occurrence.toString()} onValueChange={v => handleScoreChange('occurrence', v)}>
+                <SelectTrigger className="w-32 h-10 font-bold"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 - Rare</SelectItem>
+                  <SelectItem value="2">2 - Occasional</SelectItem>
+                  <SelectItem value="3">3 - Frequent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-bold uppercase text-slate-400">Detection</Label>
+              <Select value={risk.detection.toString()} onValueChange={v => handleScoreChange('detection', v)}>
+                <SelectTrigger className="w-32 h-10 font-bold"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 - Easy</SelectItem>
+                  <SelectItem value="2">2 - Moderate</SelectItem>
+                  <SelectItem value="3">3 - Difficult</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -109,7 +123,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
         <div className="p-6 space-y-6 bg-blue-50/20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Primary 5M Source Category</Label>
+              <Label className="text-[10px] font-bold uppercase text-slate-400">Primary 5M Source</Label>
               <Select value={risk.primary5MCategory} onValueChange={v => onUpdate({ primary5MCategory: v as any })}>
                 <SelectTrigger className="h-10 font-bold bg-white"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -119,8 +133,23 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
               <Textarea 
                 value={risk.primary5MExplanation} 
                 onChange={e => onUpdate({ primary5MExplanation: e.target.value })}
-                className="min-h-[120px] text-sm bg-white"
-                placeholder="Evidence & Reasoning..."
+                className="min-h-[100px] text-sm bg-white"
+                placeholder="Primary root cause explanation..."
+              />
+            </div>
+            <div className="space-y-3">
+              <Label className="text-[10px] font-bold uppercase text-slate-400">Secondary 5M Source (Optional)</Label>
+              <Select value={risk.secondary5MCategory} onValueChange={v => onUpdate({ secondary5MCategory: v as any })}>
+                <SelectTrigger className="h-10 font-bold bg-white"><SelectValue placeholder="Select category" /></SelectTrigger>
+                <SelectContent>
+                  {FIVE_M.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Textarea 
+                value={risk.secondary5MExplanation} 
+                onChange={e => onUpdate({ secondary5MExplanation: e.target.value })}
+                className="min-h-[100px] text-sm bg-white"
+                placeholder="Secondary root cause explanation..."
               />
             </div>
           </div>
