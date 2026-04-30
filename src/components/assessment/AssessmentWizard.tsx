@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ProjectData } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, ChevronLeft, ShieldCheck, Printer, Link, Check, BarChart3, Save, ArrowLeft, Download, FileJson, FileSpreadsheet, PlayCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ShieldCheck, Printer, Link, Check, BarChart3, Save, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,7 +21,6 @@ import BowtieDiagram from '../visuals/BowtieDiagram';
 import AssessmentReport from './AssessmentReport';
 import CollaboratorManager from './CollaboratorManager';
 import { getShareableLink } from '@/utils/share';
-import { DEMO_PROJECT } from '@/utils/demo-data';
 
 const PHASES = [
   'Welcome',
@@ -81,12 +80,6 @@ const AssessmentWizard = () => {
     setProject(prev => ({ ...prev, ...updates }));
   };
 
-  const loadDemo = () => {
-    setProject(DEMO_PROJECT);
-    setCurrentPhase(1);
-    toast.success("Demo assessment loaded!");
-  };
-
   const saveToCloud = async () => {
     if (!session?.user) return;
     setIsSaving(true);
@@ -134,52 +127,6 @@ const AssessmentWizard = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const exportJSON = () => {
-    const dataStr = JSON.stringify(project, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    const exportFileDefaultName = `${project.productName || 'assessment'}_data.json`;
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-    toast.success("JSON Exported!");
-  };
-
-  const exportCSV = () => {
-    const headers = ['Category', 'Item', 'Failure Mode', 'Effect', 'Severity', 'Occurrence', 'Detection', 'RPN', 'Risk Level', 'Primary 5M', 'Preventive', 'Detective', 'Mitigating'];
-    const rows = project.risks.map(r => [
-      r.category,
-      r.itemName,
-      r.failureMode,
-      r.effect,
-      r.severity,
-      r.occurrence,
-      r.detection,
-      r.rpn,
-      r.riskLevel,
-      r.primary5MCategory,
-      r.preventiveControls,
-      r.detectiveControls,
-      r.mitigatingControls
-    ]);
-    
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${project.productName || 'assessment'}_risks.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success("CSV Exported!");
-  };
-
   const renderPhase = () => {
     switch (currentPhase) {
       case 0:
@@ -192,14 +139,9 @@ const AssessmentWizard = () => {
             <p className="text-lg text-slate-500 mb-12">
               Integrated Quality Risk Assessment Framework for ICH Q9(R1) compliance.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" onClick={() => setCurrentPhase(1)} className="h-14 px-12 rounded-2xl text-lg font-bold">
-                Start New Assessment →
-              </Button>
-              <Button size="lg" variant="outline" onClick={loadDemo} className="h-14 px-12 rounded-2xl text-lg font-bold border-2">
-                <PlayCircle className="mr-2 h-5 w-5" /> Load Demo Example
-              </Button>
-            </div>
+            <Button size="lg" onClick={() => setCurrentPhase(1)} className="h-14 px-12 rounded-2xl text-lg font-bold">
+              Start New Assessment →
+            </Button>
           </div>
         );
       case 1: return <ProjectSetup project={project} updateProject={updateProject} />;
@@ -254,13 +196,7 @@ const AssessmentWizard = () => {
       case 6:
         return (
           <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
-            <div className="flex flex-wrap justify-end gap-4 no-print">
-              <Button onClick={exportJSON} variant="outline" className="h-12 rounded-xl font-bold border-2">
-                <FileJson className="mr-2 h-4 w-4" /> Export JSON
-              </Button>
-              <Button onClick={exportCSV} variant="outline" className="h-12 rounded-xl font-bold border-2">
-                <FileSpreadsheet className="mr-2 h-4 w-4" /> Export CSV
-              </Button>
+            <div className="flex justify-end gap-4 no-print">
               <Button onClick={handleCopyLink} className="h-12 rounded-xl font-bold bg-blue-600">
                 {copied ? <Check className="mr-2 h-4 w-4" /> : <Link className="mr-2 h-4 w-4" />}
                 {copied ? "Link Copied!" : "Copy Shareable Link"}
