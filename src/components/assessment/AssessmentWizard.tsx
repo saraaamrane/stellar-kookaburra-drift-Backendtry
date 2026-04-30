@@ -4,9 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { ProjectData } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, ChevronLeft, ShieldCheck, Download, Printer, Link, Check, BarChart3 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ShieldCheck, Download, Printer, Link, Check, BarChart3, Save, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useSession } from '@/components/auth/SessionProvider';
 
 import WizardStepper from './WizardStepper';
 import ProjectSetup from './ProjectSetup';
@@ -27,8 +29,10 @@ const PHASES = [
 ];
 
 const AssessmentWizard = () => {
+  const { session } = useSession();
   const [currentPhase, setCurrentPhase] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [project, setProject] = useState<ProjectData>({
     productName: '',
     strength: '',
@@ -41,20 +45,68 @@ const AssessmentWizard = () => {
   });
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const encodedData = params.get('data');
-    if (encodedData) {
-      const decoded = decodeProjectData(encodedData);
-      if (decoded) {
-        setProject(decoded);
-        setCurrentPhase(5);
-        toast.success("Assessment data loaded!");
+    const loadData = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const encodedData = params.get('data');
+      
+      if (encodedData) {
+        const decoded = decodeProjectData(encodedData);
+        if (decoded) {
+          setProject(decoded);
+          setCurrentPhase(5);
+          toast.success("Assessment data loaded from link!");
+          return;
+        }
       }
-    }
-  }, []);
+
+      if (session?.user) {
+        const { data, error } = await supabase
+          .from('assessments')
+          .select('project_data')
+          .eq('user_id', session.user.id)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (data && !error) {
+          setProject(data.project_data as ProjectData);
+          toast.success("Latest assessment loaded from cloud");
+        }
+      }
+    };
+
+    loadData();
+  }, [session]);
 
   const updateProject = (updates: Partial<ProjectData>) => {
     setProject(prev => ({ ...prev, ...updates }));
+  };
+
+  const saveToCloud = async () => {
+    if (!session?.user) return;
+    setIsSaving(true);
+    
+    const { error } = await supabase
+      .from('assessments')
+      .upsert({
+        user_id: session.user.id,
+        product_name: project.productName,
+        project_data: project,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id, product_name' });
+
+    setIsSaving(false);
+    if (error) {
+      toast.error("Failed to save to cloud");
+      console.error(error);
+    } else {
+      toast.success("Assessment saved to cloud!");
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Logged out successfully");
   };
 
   const handleCopyLink = () => {
@@ -156,6 +208,25 @@ const AssessmentWizard = () => {
               <ShieldCheck className="text-white" size={24} />
             </div>
             <h1 className="text-2xl font-black tracking-tight">IQRAF <span className="text-primary">2.0</span></h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={saveToCloud} 
+              disabled={isSaving}
+              className="text-white hover:bg-white/10 font-bold"
+            >
+              <Save className={cn("mr-2 h-4 w-4", isSaving && "animate-spin")} />
+              {isSaving ? "Saving..." : "Save to Cloud"}
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={handleLogout}
+              className="text-red-400 hover:bg-red-400/10 font-bold"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
           </div>
         </div>
       </header>

@@ -59,6 +59,8 @@ const ProjectSetup: React.FC<ProjectSetupProps> = ({ project, updateProject }) =
             <div className="space-y-2">
               <Label className="text-slate-500 font-semibold">Active Pharmaceutical Ingredients (APIs) *</Label>
               <Textarea 
+                value={project.scope} // Using scope field for API composition as per existing structure or update types if needed
+                onChange={e => updateProject({ scope: e.target.value })}
                 placeholder="List all APIs with strengths..."
                 className="min-h-[200px] border-slate-200 resize-none"
               />
