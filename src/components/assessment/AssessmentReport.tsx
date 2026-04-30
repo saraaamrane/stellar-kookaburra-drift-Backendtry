@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { getRiskColor } from '@/lib/risk-utils';
 import { ShieldCheck, Beaker, Settings, AlertTriangle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface AssessmentReportProps {
   project: ProjectData;
@@ -166,5 +167,4 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
   );
 };
 
-import { cn } from '@/lib/utils';
 export default AssessmentReport;
