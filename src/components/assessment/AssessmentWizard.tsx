@@ -16,6 +16,7 @@ import ProcessFlowchart from './ProcessFlowchart';
 import RiskIdentification from './RiskIdentification';
 import RiskHeatmap from '../visuals/RiskHeatmap';
 import IshikawaDiagram from '../visuals/IshikawaDiagram';
+import AssessmentReport from './AssessmentReport';
 import { getShareableLink, decodeProjectData } from '@/utils/share';
 
 const PHASES = [
@@ -175,22 +176,20 @@ const AssessmentWizard = () => {
         );
       case 6:
         return (
-          <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
-            <Card className="border-2 shadow-lg overflow-hidden">
-              <div className="bg-slate-900 text-white p-8">
-                <h2 className="text-2xl font-bold mb-2">Quality Risk Assessment Report</h2>
-                <p className="text-slate-400 text-sm">ICH Q9(R1) Compliant Documentation</p>
-              </div>
-              <CardContent className="p-8 space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button onClick={handleCopyLink} className="h-12 rounded-xl font-bold bg-blue-600">
-                    {copied ? <Check className="mr-2 h-4 w-4" /> : <Link className="mr-2 h-4 w-4" />}
-                    {copied ? "Link Copied!" : "Copy Shareable Link"}
-                  </Button>
-                  <Button variant="outline" onClick={() => window.print()} className="h-12 rounded-xl font-bold border-2">
-                    <Printer className="mr-2 h-4 w-4" /> Print PDF
-                  </Button>
-                </div>
+          <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+            <div className="flex justify-end gap-4 no-print">
+              <Button onClick={handleCopyLink} className="h-12 rounded-xl font-bold bg-blue-600">
+                {copied ? <Check className="mr-2 h-4 w-4" /> : <Link className="mr-2 h-4 w-4" />}
+                {copied ? "Link Copied!" : "Copy Shareable Link"}
+              </Button>
+              <Button variant="outline" onClick={() => window.print()} className="h-12 rounded-xl font-bold border-2">
+                <Printer className="mr-2 h-4 w-4" /> Print PDF
+              </Button>
+            </div>
+            
+            <Card className="border-2 shadow-2xl overflow-hidden bg-white">
+              <CardContent className="p-12">
+                <AssessmentReport project={project} />
               </CardContent>
             </Card>
           </div>
