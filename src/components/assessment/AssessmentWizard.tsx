@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { ProjectData } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, ChevronLeft, ShieldCheck, Printer, Link, Check, BarChart3, Save, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ShieldCheck, Download, Printer, Link, Check, BarChart3, Save, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,8 +17,7 @@ import RiskIdentification from './RiskIdentification';
 import RiskHeatmap from '../visuals/RiskHeatmap';
 import IshikawaDiagram from '../visuals/IshikawaDiagram';
 import AssessmentReport from './AssessmentReport';
-import CollaborationDialog from './CollaborationDialog';
-import { getShareableLink } from '@/utils/share';
+import { getShareableLink, decodeProjectData } from '@/utils/share';
 
 const PHASES = [
   'Welcome',
@@ -32,15 +30,10 @@ const PHASES = [
 ];
 
 const AssessmentWizard = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
   const { session } = useSession();
   const [currentPhase, setCurrentPhase] = useState(0);
   const [copied, setCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [assessmentId, setAssessmentId] = useState<string | null>(id === 'new' ? null : id || null);
-  const [ownerId, setOwnerId] = useState<string | null>(null);
-  
   const [project, setProject] = useState<ProjectData>({
     productName: '',
     strength: '',
@@ -53,27 +46,38 @@ const AssessmentWizard = () => {
   });
 
   useEffect(() => {
-    const loadAssessment = async () => {
-      if (!assessmentId || assessmentId === 'new') return;
+    const loadData = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const encodedData = params.get('data');
+      
+      if (encodedData) {
+        const decoded = decodeProjectData(encodedData);
+        if (decoded) {
+          setProject(decoded);
+          setCurrentPhase(5);
+          toast.success("Assessment data loaded from link!");
+          return;
+        }
+      }
 
-      const { data, error } = await supabase
-        .from('assessments')
-        .select('*')
-        .eq('id', assessmentId)
-        .single();
+      if (session?.user) {
+        const { data, error } = await supabase
+          .from('assessments')
+          .select('project_data')
+          .eq('user_id', session.user.id)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .single();
 
-      if (error) {
-        toast.error("Failed to load assessment");
-        navigate('/');
-      } else if (data) {
-        setProject(data.project_data as ProjectData);
-        setOwnerId(data.owner_id);
-        setCurrentPhase(1);
+        if (data && !error) {
+          setProject(data.project_data as ProjectData);
+          toast.success("Latest assessment loaded from cloud");
+        }
       }
     };
 
-    loadAssessment();
-  }, [assessmentId]);
+    loadData();
+  }, [session]);
 
   const updateProject = (updates: Partial<ProjectData>) => {
     setProject(prev => ({ ...prev, ...updates }));
@@ -83,40 +87,27 @@ const AssessmentWizard = () => {
     if (!session?.user) return;
     setIsSaving(true);
     
-    const payload = {
-      owner_id: ownerId || session.user.id,
-      product_name: project.productName || 'Untitled Assessment',
-      project_data: project,
-      updated_at: new Date().toISOString()
-    };
-
-    let error;
-    if (assessmentId) {
-      const { error: updateError } = await supabase
-        .from('assessments')
-        .update(payload)
-        .eq('id', assessmentId);
-      error = updateError;
-    } else {
-      const { data, error: insertError } = await supabase
-        .from('assessments')
-        .insert(payload)
-        .select()
-        .single();
-      error = insertError;
-      if (data) {
-        setAssessmentId(data.id);
-        setOwnerId(data.owner_id);
-        navigate(`/assessment/${data.id}`, { replace: true });
-      }
-    }
+    const { error } = await supabase
+      .from('assessments')
+      .upsert({
+        user_id: session.user.id,
+        product_name: project.productName,
+        project_data: project,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id, product_name' });
 
     setIsSaving(false);
     if (error) {
       toast.error("Failed to save to cloud");
+      console.error(error);
     } else {
-      toast.success("Assessment saved!");
+      toast.success("Assessment saved to cloud!");
     }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Logged out successfully");
   };
 
   const handleCopyLink = () => {
@@ -140,7 +131,7 @@ const AssessmentWizard = () => {
               Integrated Quality Risk Assessment Framework for ICH Q9(R1) compliance.
             </p>
             <Button size="lg" onClick={() => setCurrentPhase(1)} className="h-14 px-12 rounded-2xl text-lg font-bold">
-              Start Assessment →
+              Start New Assessment →
             </Button>
           </div>
         );
@@ -209,33 +200,31 @@ const AssessmentWizard = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
-      <header className="bg-slate-900 text-white px-8 py-6 shadow-2xl border-b-4 border-primary no-print">
+      <header className="bg-slate-900 text-white px-8 py-8 shadow-2xl border-b-4 border-primary no-print">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <Button variant="ghost" onClick={() => navigate('/')} className="text-white hover:bg-white/10">
-              <ArrowLeft size={20} />
-            </Button>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <ShieldCheck className="text-white" size={24} />
-              </div>
-              <h1 className="text-2xl font-black tracking-tight">IQRAF <span className="text-primary">2.0</span></h1>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+              <ShieldCheck className="text-white" size={24} />
             </div>
+            <h1 className="text-2xl font-black tracking-tight">IQRAF <span className="text-primary">2.0</span></h1>
           </div>
           <div className="flex items-center gap-4">
-            {assessmentId && (
-              <CollaborationDialog 
-                assessmentId={assessmentId} 
-                isOwner={ownerId === session?.user.id} 
-              />
-            )}
             <Button 
+              variant="ghost" 
               onClick={saveToCloud} 
               disabled={isSaving}
-              className="bg-primary hover:bg-primary/90 font-bold rounded-xl"
+              className="text-white hover:bg-white/10 font-bold"
             >
               <Save className={cn("mr-2 h-4 w-4", isSaving && "animate-spin")} />
-              {isSaving ? "Saving..." : "Save Progress"}
+              {isSaving ? "Saving..." : "Save to Cloud"}
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={handleLogout}
+              className="text-red-400 hover:bg-red-400/10 font-bold"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
             </Button>
           </div>
         </div>
