@@ -10,22 +10,13 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import { SessionProvider, useSession } from "./components/auth/SessionProvider";
-import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useSession();
   
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-slate-500 font-medium">Initializing session...</p>
-      </div>
-    );
-  }
-  
+  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!session) return <Navigate to="/login" replace />;
   
   return <>{children}</>;
@@ -37,7 +28,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route 

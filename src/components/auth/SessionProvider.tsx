@@ -14,43 +14,17 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-
-    const initSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (mounted) {
-          setSession(session);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Session initialization error:", error);
-        if (mounted) setLoading(false);
-      }
-    };
-
-    initSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) {
-        setSession(session);
-        setLoading(false);
-      }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
     });
 
-    // Safety timeout: if session doesn't load in 5 seconds, stop loading
-    const timer = setTimeout(() => {
-      if (mounted && loading) {
-        console.warn("Session loading timed out");
-        setLoading(false);
-      }
-    }, 5000);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setLoading(false);
+    });
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-      clearTimeout(timer);
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
