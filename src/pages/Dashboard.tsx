@@ -6,8 +6,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/components/auth/SessionProvider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, FileText, Clock, Users, LogOut, ShieldCheck } from 'lucide-react';
+import { Plus, FileText, Clock, Users, LogOut, ShieldCheck, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Dashboard = () => {
   const { session } = useSession();
@@ -34,6 +45,21 @@ const Dashboard = () => {
       setAssessments(data || []);
     }
     setLoading(false);
+  };
+
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { error } = await supabase
+      .from('assessments')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast.error("Failed to delete assessment");
+    } else {
+      toast.success("Assessment deleted successfully");
+      setAssessments(prev => prev.filter(a => a.id !== id));
+    }
   };
 
   const handleLogout = async () => {
@@ -86,14 +112,47 @@ const Dashboard = () => {
             {assessments.map((item) => (
               <Card 
                 key={item.id} 
-                className="border-2 hover:border-primary/50 transition-all cursor-pointer group shadow-sm hover:shadow-xl rounded-2xl overflow-hidden"
+                className="border-2 hover:border-primary/50 transition-all cursor-pointer group shadow-sm hover:shadow-xl rounded-2xl overflow-hidden relative"
                 onClick={() => navigate(`/assessment/${item.id}`)}
               >
-                <CardHeader className="bg-slate-50/50 border-b group-hover:bg-primary/5 transition-colors">
+                <CardHeader className="bg-slate-50/50 border-b group-hover:bg-primary/5 transition-colors pr-12">
                   <CardTitle className="text-lg font-black text-slate-800 truncate">
                     {item.product_name || 'Untitled Assessment'}
                   </CardTitle>
                 </CardHeader>
+                
+                <div className="absolute top-4 right-4 z-10">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Trash2 size={18} />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="rounded-2xl">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="font-black">Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription className="font-medium">
+                          This will permanently delete the assessment for "{item.product_name || 'Untitled Assessment'}". This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={(e) => handleDelete(item.id, e as any)}
+                          className="bg-red-600 hover:bg-red-700 rounded-xl font-bold"
+                        >
+                          Delete Assessment
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-center text-sm text-slate-500 font-medium">
                     <Clock className="mr-2 h-4 w-4" />
