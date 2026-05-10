@@ -9,8 +9,10 @@ export interface RiskItem {
   category: 'Material' | 'Process';
   // Section 1: Identification
   itemName: string; // Material name or Process step
-  itemType?: string; // Material Type or Process Parameter
-  attribute: string; // CMA or CPP
+  role?: string; // Role (for material)
+  cma?: string; // Critical Material Attribute (for material)
+  ccp?: string; // Critical Control Point (for process)
+  attribute: string; // CMA or CPP (legacy field, keeping for compatibility)
   cqa: string; // Affected CQA
   target?: string; // CPP Target (for process)
   

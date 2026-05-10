@@ -14,9 +14,6 @@ interface AssessmentReportProps {
 }
 
 const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
-  const materialRisks = project.risks.filter(r => r.category === 'Material');
-  const processRisks = project.risks.filter(r => r.category === 'Process');
-
   return (
     <div className="space-y-8 print:space-y-4">
       {/* Header Section */}
@@ -101,7 +98,8 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
               <TableRow className="hover:bg-slate-900">
                 <TableHead className="text-white font-bold text-[10px] uppercase">Category</TableHead>
                 <TableHead className="text-white font-bold text-[10px] uppercase">Item/Step</TableHead>
-                <TableHead className="text-white font-bold text-[10px] uppercase">Failure Mode</TableHead>
+                <TableHead className="text-white font-bold text-[10px] uppercase">Role / CCP</TableHead>
+                <TableHead className="text-white font-bold text-[10px] uppercase">CMA / Attribute</TableHead>
                 <TableHead className="text-white font-bold text-[10px] uppercase">CQA Impact</TableHead>
                 <TableHead className="text-white font-bold text-[10px] uppercase text-center">RPN</TableHead>
                 <TableHead className="text-white font-bold text-[10px] uppercase text-center">Level</TableHead>
@@ -113,7 +111,8 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
                   <TableRow key={risk.id}>
                     <TableCell className="text-[10px] font-bold uppercase text-slate-500">{risk.category}</TableCell>
                     <TableCell className="font-bold text-sm">{risk.itemName}</TableCell>
-                    <TableCell className="text-sm">{risk.failureMode}</TableCell>
+                    <TableCell className="text-sm">{risk.category === 'Material' ? risk.role : risk.ccp}</TableCell>
+                    <TableCell className="text-sm">{risk.category === 'Material' ? risk.cma : 'N/A'}</TableCell>
                     <TableCell className="text-sm">{risk.cqa}</TableCell>
                     <TableCell className="text-center font-black">{risk.rpn}</TableCell>
                     <TableCell className="text-center">
@@ -125,7 +124,7 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-slate-400 italic">
+                  <TableCell colSpan={7} className="text-center py-8 text-slate-400 italic">
                     No risks identified in this assessment.
                   </TableCell>
                 </TableRow>

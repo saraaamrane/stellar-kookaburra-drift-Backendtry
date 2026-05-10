@@ -51,6 +51,25 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
               <Label className="text-[10px] font-bold uppercase text-slate-400">{risk.category === 'Material' ? 'Material Name' : 'Process Step'}</Label>
               <Input value={risk.itemName} onChange={e => onUpdate({ itemName: e.target.value })} className="h-9 text-sm font-bold" />
             </div>
+            
+            {risk.category === 'Material' ? (
+              <>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold uppercase text-slate-400">Role</Label>
+                  <Input value={risk.role} onChange={e => onUpdate({ role: e.target.value })} placeholder="e.g. Diluent" className="h-9 text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold uppercase text-slate-400">CMA</Label>
+                  <Input value={risk.cma} onChange={e => onUpdate({ cma: e.target.value })} placeholder="e.g. Particle Size" className="h-9 text-sm" />
+                </div>
+              </>
+            ) : (
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-bold uppercase text-slate-400">CCP</Label>
+                <Input value={risk.ccp} onChange={e => onUpdate({ ccp: e.target.value })} placeholder="e.g. Blending Time" className="h-9 text-sm" />
+              </div>
+            )}
+
             <div className="space-y-1.5">
               <Label className="text-[10px] font-bold uppercase text-slate-400">Affected CQA</Label>
               <Input value={risk.cqa} onChange={e => onUpdate({ cqa: e.target.value })} className="h-9 text-sm" />
