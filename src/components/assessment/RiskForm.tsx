@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { RiskItem, FiveMCategory, ProcessDeviation } from '@/types/assessment';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -8,9 +8,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Star, ShieldCheck, AlertCircle, Copy } from 'lucide-react';
+import { Trash2, Star, ShieldCheck, AlertCircle, Copy, Bookmark, BookmarkCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { calculateRPN, getRiskLevel } from '@/lib/risk-utils';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface RiskFormProps {
   risk: RiskItem;
@@ -23,6 +25,9 @@ const FIVE_M: FiveMCategory[] = ['Material', 'Method', 'Machine', 'Manpower', 'M
 const DEVIATIONS: ProcessDeviation[] = ['Above Target', 'Below Target'];
 
 const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplicate }) => {
+  const [isSavingToLib, setIsSavingToLib] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
   const handleScoreChange = (field: 'severity' | 'occurrence' | 'detection', value: string) => {
     const numVal = parseInt(value);
     const updates: any = { [field]: numVal };
@@ -32,6 +37,36 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
     updates.rpn = calculateRPN(s, o, d);
     updates.riskLevel = getRiskLevel(s, o, d);
     onUpdate(updates);
+  };
+
+  const saveToLibrary = async () => {
+    if (!risk.itemName || !risk.failureMode) {
+      toast.error("Item name and failure mode are required to save to library");
+      return;
+    }
+
+    setIsSavingToLib(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('risk_library')
+      .insert({
+        user_id: user.id,
+        category: risk.category,
+        item_name: risk.itemName,
+        risk_data: risk
+      });
+
+    if (error) {
+      toast.error("Failed to save to library");
+    } else {
+      toast.success("Saved to your risk library!");
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 3000);
+    }
+    setIsSavingToLib(false);
   };
 
   // Sync Failure Mode for Process risks when Deviation or CPP changes
@@ -57,6 +92,16 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <Copy size={12} className="mr-1" /> Duplicate Step
             </Button>
           )}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={saveToLibrary} 
+            disabled={isSavingToLib}
+            className="h-6 text-[10px] text-white hover:bg-white/20 px-2"
+          >
+            {isSaved ? <BookmarkCheck size={12} className="mr-1" /> : <Bookmark size={12} className="mr-1" />}
+            {isSaved ? "Saved!" : "Save to Library"}
+          </Button>
         </div>
         <Button variant="ghost" size="sm" onClick={onRemove} className="h-6 text-[10px] text-white hover:bg-white/20 px-2">
           <Trash2 size={12} className="mr-1" /> Remove

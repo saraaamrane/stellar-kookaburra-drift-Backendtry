@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, AlertCircle, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import RiskForm from './RiskForm';
+import RiskLibraryDialog from './RiskLibraryDialog';
 
 interface RiskIdentificationProps {
   project: ProjectData;
@@ -23,19 +24,20 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
       cma: template?.cma || '',
       cpp: template?.cpp || '',
       processDeviation: template?.processDeviation || (category === 'Process' ? 'Above Target' : undefined),
-      cqa: '',
+      cqa: template?.cqa || '',
       failureMode: template?.failureMode || '',
-      effect: '',
-      severity: 1,
-      occurrence: 1,
-      detection: 1,
-      rpn: 1,
-      riskLevel: 'LOW',
-      primary5MCategory: category === 'Material' ? 'Material' : 'Method',
-      primary5MExplanation: '',
-      secondary5MExplanation: '',
-      preventiveActions: '',
-      correctiveActions: ''
+      effect: template?.effect || '',
+      severity: template?.severity || 1,
+      occurrence: template?.occurrence || 1,
+      detection: template?.detection || 1,
+      rpn: template?.rpn || 1,
+      riskLevel: template?.riskLevel || 'LOW',
+      primary5MCategory: template?.primary5MCategory || (category === 'Material' ? 'Material' : 'Method'),
+      primary5MExplanation: template?.primary5MExplanation || '',
+      secondary5MCategory: template?.secondary5MCategory,
+      secondary5MExplanation: template?.secondary5MExplanation || '',
+      preventiveActions: template?.preventiveActions || '',
+      correctiveActions: template?.correctiveActions || ''
     };
     // Prepend new risk to the top
     updateProject({ risks: [newRisk, ...project.risks] });
@@ -87,9 +89,12 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
             <p className="text-sm text-slate-500 font-medium">Integrated FMEA + HAZOP Analysis</p>
           </div>
         </div>
-        <Button onClick={() => addRisk()} className="rounded-2xl font-black h-14 px-8 shadow-xl hover:scale-105 transition-transform">
-          <Plus className="mr-2 h-6 w-6" /> ADD NEW {category.toUpperCase()} RISK
-        </Button>
+        <div className="flex gap-3">
+          <RiskLibraryDialog category={category} onImport={addRisk} />
+          <Button onClick={() => addRisk()} className="rounded-2xl font-black h-14 px-8 shadow-xl hover:scale-105 transition-transform">
+            <Plus className="mr-2 h-6 w-6" /> ADD NEW {category.toUpperCase()} RISK
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-8">
