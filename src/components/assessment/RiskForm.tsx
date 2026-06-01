@@ -1,4 +1,3 @@
-Effect -> CQA. Updating Process risk to use Deviation as Failure Mode.">
 "use client";
 
 import React, { useEffect } from 'react';
