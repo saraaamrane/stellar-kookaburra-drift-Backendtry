@@ -20,7 +20,7 @@ interface RiskFormProps {
 }
 
 const FIVE_M: FiveMCategory[] = ['Material', 'Method', 'Machine', 'Manpower', 'Medium'];
-const DEVIATIONS: ProcessDeviation[] = ['Above Target', 'Below Target', 'More', 'Less', 'No/None', 'Part of', 'Reverse', 'Other than'];
+const DEVIATIONS: ProcessDeviation[] = ['Above Target', 'Below Target'];
 
 const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplicate }) => {
   const handleScoreChange = (field: 'severity' | 'occurrence' | 'detection', value: string) => {
@@ -97,9 +97,9 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-bold uppercase text-slate-400">Deviation (HAZOP)</Label>
                   <Select value={risk.processDeviation} onValueChange={v => onUpdate({ processDeviation: v as ProcessDeviation })}>
-                    <SelectTrigger className="h-10 text-sm font-bold border-2"><SelectValue placeholder="Select deviation" /></SelectTrigger>
-                    <SelectContent>
-                      {DEVIATIONS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                    <SelectTrigger className="h-10 text-sm font-bold border-2 bg-white"><SelectValue placeholder="Select deviation" /></SelectTrigger>
+                    <SelectContent className="bg-white border-2 shadow-2xl z-[100]">
+                      {DEVIATIONS.map(d => <SelectItem key={d} value={d} className="font-bold hover:bg-slate-100">{d}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -149,7 +149,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <Label className="text-[10px] font-bold uppercase text-slate-400">Severity (S)</Label>
               <Select value={risk.severity.toString()} onValueChange={v => handleScoreChange('severity', v)}>
                 <SelectTrigger className="w-32 h-10 font-bold border-2 bg-white"><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border-2 shadow-2xl z-[100]">
                   <SelectItem value="1">1 - Low</SelectItem>
                   <SelectItem value="2">2 - Moderate</SelectItem>
                   <SelectItem value="3">3 - High</SelectItem>
@@ -160,7 +160,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <Label className="text-[10px] font-bold uppercase text-slate-400">Occurrence (O)</Label>
               <Select value={risk.occurrence.toString()} onValueChange={v => handleScoreChange('occurrence', v)}>
                 <SelectTrigger className="w-32 h-10 font-bold border-2 bg-white"><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border-2 shadow-2xl z-[100]">
                   <SelectItem value="1">1 - Rare</SelectItem>
                   <SelectItem value="2">2 - Occasional</SelectItem>
                   <SelectItem value="3">3 - Frequent</SelectItem>
@@ -171,7 +171,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <Label className="text-[10px] font-bold uppercase text-slate-400">Detection (D)</Label>
               <Select value={risk.detection.toString()} onValueChange={v => handleScoreChange('detection', v)}>
                 <SelectTrigger className="w-32 h-10 font-bold border-2 bg-white"><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border-2 shadow-2xl z-[100]">
                   <SelectItem value="1">1 - Easy</SelectItem>
                   <SelectItem value="2">2 - Moderate</SelectItem>
                   <SelectItem value="3">3 - Difficult</SelectItem>
@@ -199,7 +199,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <Label className="text-[10px] font-bold uppercase text-slate-400">Primary 5M Source</Label>
               <Select value={risk.primary5MCategory} onValueChange={v => onUpdate({ primary5MCategory: v as any })}>
                 <SelectTrigger className="h-10 font-bold bg-white border-2"><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border-2 shadow-2xl z-[100]">
                   {FIVE_M.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -214,7 +214,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <Label className="text-[10px] font-bold uppercase text-slate-400">Secondary 5M Source (Optional)</Label>
               <Select value={risk.secondary5MCategory} onValueChange={v => onUpdate({ secondary5MCategory: v as any })}>
                 <SelectTrigger className="h-10 font-bold bg-white border-2"><SelectValue placeholder="Select category" /></SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border-2 shadow-2xl z-[100]">
                   {FIVE_M.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                 </SelectContent>
               </Select>

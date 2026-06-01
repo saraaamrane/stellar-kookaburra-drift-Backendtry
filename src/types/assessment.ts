@@ -2,7 +2,7 @@ export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export type FiveMCategory = 'Material' | 'Method' | 'Machine' | 'Manpower' | 'Medium';
 
-export type ProcessDeviation = 'Above Target' | 'Below Target' | 'None' | 'More' | 'Less' | 'No/None' | 'Part of' | 'Reverse' | 'Other than';
+export type ProcessDeviation = 'Above Target' | 'Below Target';
 
 export interface RiskItem {
   id: string;

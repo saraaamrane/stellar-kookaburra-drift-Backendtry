@@ -22,7 +22,7 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
       role: template?.role || '',
       cma: template?.cma || '',
       cpp: template?.cpp || '',
-      processDeviation: template?.processDeviation || (category === 'Process' ? 'None' : undefined),
+      processDeviation: template?.processDeviation || (category === 'Process' ? 'Above Target' : undefined),
       cqa: '',
       failureMode: template?.failureMode || '',
       effect: '',
