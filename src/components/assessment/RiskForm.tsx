@@ -46,34 +46,27 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
     }
 
     setIsSavingToLib(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session?.user) {
-        toast.error("You must be logged in to save to library");
-        return;
-      }
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return;
 
-      const { error } = await supabase
-        .from('risk_library')
-        .insert({
-          user_id: session.user.id,
-          category: risk.category,
-          item_name: risk.itemName,
-          risk_data: risk
-        });
+    const { error } = await supabase
+      .from('risk_library')
+      .insert({
+        user_id: user.id,
+        category: risk.category,
+        item_name: risk.itemName,
+        risk_data: risk
+      });
 
-      if (error) throw error;
-
+    if (error) {
+      toast.error("Failed to save to library");
+    } else {
       toast.success("Saved to your risk library!");
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 3000);
-    } catch (error: any) {
-      console.error("Library save error:", error);
-      toast.error(error.message || "Failed to save to library. Make sure the table exists.");
-    } finally {
-      setIsSavingToLib(false);
     }
+    setIsSavingToLib(false);
   };
 
   // Sync Failure Mode for Process risks when Deviation or CPP changes
