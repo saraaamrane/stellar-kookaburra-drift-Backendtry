@@ -12,6 +12,7 @@ import { Trash2, Star, ShieldCheck, AlertCircle, Copy, Bookmark, BookmarkCheck }
 import { cn } from '@/lib/utils';
 import { calculateRPN, getRiskLevel } from '@/lib/risk-utils';
 import { supabase } from '@/integrations/supabase/client';
+import { useSession } from '@/components/auth/SessionProvider';
 import { toast } from 'sonner';
 
 interface RiskFormProps {
@@ -25,6 +26,7 @@ const FIVE_M: FiveMCategory[] = ['Material', 'Method', 'Machine', 'Manpower', 'M
 const DEVIATIONS: ProcessDeviation[] = ['Above Target', 'Below Target'];
 
 const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplicate }) => {
+  const { session } = useSession();
   const [isSavingToLib, setIsSavingToLib] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -45,28 +47,34 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
       return;
     }
 
+    if (!session?.user) {
+      toast.error("You must be logged in to save to the library");
+      return;
+    }
+
     setIsSavingToLib(true);
-    const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('risk_library')
+        .insert({
+          user_id: session.user.id,
+          category: risk.category,
+          item_name: risk.itemName,
+          risk_data: risk
+        });
 
-    const { error } = await supabase
-      .from('risk_library')
-      .insert({
-        user_id: user.id,
-        category: risk.category,
-        item_name: risk.itemName,
-        risk_data: risk
-      });
+      if (error) throw error;
 
-    if (error) {
-      toast.error("Failed to save to library");
-    } else {
       toast.success("Saved to your risk library!");
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 3000);
+    } catch (error: any) {
+      console.error("Library save error:", error);
+      toast.error(error.message || "Failed to save to library. Ensure the table exists.");
+    } finally {
+      setIsSavingToLib(false);
     }
-    setIsSavingToLib(false);
   };
 
   // Sync Failure Mode for Process risks when Deviation or CPP changes
@@ -100,7 +108,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
             className="h-6 text-[10px] text-white hover:bg-white/20 px-2"
           >
             {isSaved ? <BookmarkCheck size={12} className="mr-1" /> : <Bookmark size={12} className="mr-1" />}
-            {isSaved ? "Saved!" : "Save to Library"}
+            {isSaved ? "Saved!" : isSavingToLib ? "Saving..." : "Save to Library"}
           </Button>
         </div>
         <Button variant="ghost" size="sm" onClick={onRemove} className="h-6 text-[10px] text-white hover:bg-white/20 px-2">
