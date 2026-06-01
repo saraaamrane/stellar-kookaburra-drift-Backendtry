@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ProjectData } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, ChevronLeft, ShieldCheck, Printer, Link, Check, BarChart3, Save, ArrowLeft, TrendingUp } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ShieldCheck, Printer, Link, Check, BarChart3, Save, ArrowLeft, TrendingUp, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,6 +19,7 @@ import RiskIdentification from './RiskIdentification';
 import RiskHeatmap from '../visuals/RiskHeatmap';
 import AssessmentReport from './AssessmentReport';
 import CollaboratorManager from './CollaboratorManager';
+import RootCauseFinder from './RootCauseFinder';
 import { getShareableLink } from '@/utils/share';
 
 const PHASES = [
@@ -225,6 +226,9 @@ const AssessmentWizard = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Root Cause Finder Tool */}
+            <RootCauseFinder risks={project.risks} />
 
             <div className="space-y-6">
               <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Risk Ranking (High to Low)</h3>

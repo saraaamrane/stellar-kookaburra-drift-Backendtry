@@ -7,12 +7,26 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { Beaker, Factory, FlaskConical } from 'lucide-react';
+import { Beaker, FlaskConical } from 'lucide-react';
 
 interface ProjectSetupProps {
   project: ProjectData;
   updateProject: (updates: Partial<ProjectData>) => void;
 }
+
+const DOSAGE_FORMS = [
+  "Tablet (Film-coated)",
+  "Tablet (Uncoated)",
+  "Capsule (Hard Gelatin)",
+  "Capsule (Soft Gelatin)",
+  "Oral Liquid (Solution/Suspension)",
+  "Injectable (Small Volume Parenteral)",
+  "Injectable (Large Volume Parenteral)",
+  "Topical (Cream/Ointment/Gel)",
+  "Inhaler (MDI/DPI)",
+  "Ophthalmic Drop",
+  "Transdermal Patch"
+];
 
 const ProjectSetup: React.FC<ProjectSetupProps> = ({ project, updateProject }) => {
   return (
@@ -40,9 +54,9 @@ const ProjectSetup: React.FC<ProjectSetupProps> = ({ project, updateProject }) =
                   <SelectValue placeholder="Select dosage form" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Tablet (Film-coated)">Tablet (Film-coated)</SelectItem>
-                  <SelectItem value="Capsule (Hard Gelatin)">Capsule (Hard Gelatin)</SelectItem>
-                  <SelectItem value="Injectable">Injectable</SelectItem>
+                  {DOSAGE_FORMS.map(form => (
+                    <SelectItem key={form} value={form}>{form}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -59,7 +73,7 @@ const ProjectSetup: React.FC<ProjectSetupProps> = ({ project, updateProject }) =
             <div className="space-y-2">
               <Label className="text-slate-500 font-semibold">Active Pharmaceutical Ingredients (APIs) *</Label>
               <Textarea 
-                value={project.scope} // Using scope field for API composition as per existing structure or update types if needed
+                value={project.scope} 
                 onChange={e => updateProject({ scope: e.target.value })}
                 placeholder="List all APIs with strengths..."
                 className="min-h-[200px] border-slate-200 resize-none"
