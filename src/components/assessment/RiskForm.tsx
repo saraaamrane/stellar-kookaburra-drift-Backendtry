@@ -72,7 +72,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <Input 
                 value={risk.itemName} 
                 onChange={e => onUpdate({ itemName: e.target.value })} 
-                className="h-10 text-sm font-bold border-2 focus:border-primary" 
+                className="h-10 text-sm font-bold border-2 focus:border-primary placeholder:font-normal" 
                 placeholder={risk.category === 'Material' ? "e.g. Lactose Monohydrate" : "e.g. Dry Mixing"}
               />
             </div>
@@ -81,18 +81,18 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <>
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-bold uppercase text-slate-400">Role</Label>
-                  <Input value={risk.role} onChange={e => onUpdate({ role: e.target.value })} placeholder="e.g. Diluent" className="h-10 text-sm border-2" />
+                  <Input value={risk.role} onChange={e => onUpdate({ role: e.target.value })} placeholder="e.g. Diluent" className="h-10 text-sm border-2 placeholder:font-normal" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-bold uppercase text-slate-400">CMA</Label>
-                  <Input value={risk.cma} onChange={e => onUpdate({ cma: e.target.value })} placeholder="e.g. Particle Size" className="h-10 text-sm border-2" />
+                  <Input value={risk.cma} onChange={e => onUpdate({ cma: e.target.value })} placeholder="e.g. Particle Size" className="h-10 text-sm border-2 placeholder:font-normal" />
                 </div>
               </>
             ) : (
               <>
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-bold uppercase text-slate-400">CPP (Parameter)</Label>
-                  <Input value={risk.cpp} onChange={e => onUpdate({ cpp: e.target.value })} placeholder="e.g. Mixing Speed" className="h-10 text-sm border-2" />
+                  <Input value={risk.cpp} onChange={e => onUpdate({ cpp: e.target.value })} placeholder="e.g. Mixing Speed" className="h-10 text-sm border-2 placeholder:font-normal" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-bold uppercase text-slate-400">Deviation (HAZOP)</Label>
@@ -117,7 +117,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
                 value={risk.failureMode} 
                 onChange={e => onUpdate({ failureMode: e.target.value })} 
                 readOnly={risk.category === 'Process'}
-                className={cn("min-h-[100px] text-sm border-2", risk.category === 'Process' && "bg-slate-50 font-medium")}
+                className={cn("min-h-[100px] text-sm border-2 placeholder:font-normal", risk.category === 'Process' && "bg-slate-50 font-medium")}
                 placeholder="Describe how it fails..."
               />
             </div>
@@ -126,7 +126,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <Textarea 
                 value={risk.effect} 
                 onChange={e => onUpdate({ effect: e.target.value })} 
-                className="min-h-[100px] text-sm border-2" 
+                className="min-h-[100px] text-sm border-2 placeholder:font-normal" 
                 placeholder="Impact on intermediate or final product..."
               />
             </div>
@@ -135,7 +135,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <Textarea 
                 value={risk.cqa} 
                 onChange={e => onUpdate({ cqa: e.target.value })} 
-                className="min-h-[100px] text-sm border-2 font-bold text-primary" 
+                className="min-h-[100px] text-sm border-2 font-bold text-primary placeholder:font-normal" 
                 placeholder="e.g. Assay, Dissolution, Content Uniformity"
               />
             </div>
@@ -206,7 +206,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <Textarea 
                 value={risk.primary5MExplanation} 
                 onChange={e => onUpdate({ primary5MExplanation: e.target.value })}
-                className="min-h-[80px] text-sm bg-white border-2"
+                className="min-h-[80px] text-sm bg-white border-2 placeholder:font-normal"
                 placeholder="Primary root cause explanation..."
               />
             </div>
@@ -221,7 +221,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
               <Textarea 
                 value={risk.secondary5MExplanation} 
                 onChange={e => onUpdate({ secondary5MExplanation: e.target.value })}
-                className="min-h-[80px] text-sm bg-white border-2"
+                className="min-h-[80px] text-sm bg-white border-2 placeholder:font-normal"
                 placeholder="Secondary root cause explanation..."
               />
             </div>
@@ -236,14 +236,14 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
                 <ShieldCheck size={14} />
                 <Label className="text-[10px] font-black uppercase">Preventive Actions</Label>
               </div>
-              <Textarea value={risk.preventiveActions} onChange={e => onUpdate({ preventiveActions: e.target.value })} className="min-h-[100px] text-sm border-2" placeholder="Actions to prevent occurrence..." />
+              <Textarea value={risk.preventiveActions} onChange={e => onUpdate({ preventiveActions: e.target.value })} className="min-h-[100px] text-sm border-2 placeholder:font-normal" placeholder="Actions to prevent occurrence..." />
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-amber-600">
                 <AlertCircle size={14} />
                 <Label className="text-[10px] font-black uppercase">Corrective Actions</Label>
               </div>
-              <Textarea value={risk.correctiveActions} onChange={e => onUpdate({ correctiveActions: e.target.value })} className="min-h-[100px] text-sm border-2" placeholder="Actions to correct if failure occurs..." />
+              <Textarea value={risk.correctiveActions} onChange={e => onUpdate({ correctiveActions: e.target.value })} className="min-h-[100px] text-sm border-2 placeholder:font-normal" placeholder="Actions to correct if failure occurs..." />
             </div>
           </div>
         </div>
