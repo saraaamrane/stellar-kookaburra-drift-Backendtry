@@ -1,23 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ProjectData } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, ChevronLeft, ShieldCheck, Printer, Link, Check, BarChart3, Save, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ShieldCheck, Printer, Link, Check, BarChart3, Save, ArrowLeft, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/components/auth/SessionProvider';
+import debounce from 'lodash.debounce';
 
 import WizardStepper from './WizardStepper';
 import ProjectSetup from './ProjectSetup';
 import ProcessFlowchart from './ProcessFlowchart';
 import RiskIdentification from './RiskIdentification';
 import RiskHeatmap from '../visuals/RiskHeatmap';
-import IshikawaDiagram from '../visuals/IshikawaDiagram';
-import BowtieDiagram from '../visuals/BowtieDiagram';
 import AssessmentReport from './AssessmentReport';
 import CollaboratorManager from './CollaboratorManager';
 import { getShareableLink } from '@/utils/share';
@@ -52,6 +51,35 @@ const AssessmentWizard = () => {
     flowNodes: [],
     risks: []
   });
+
+  // Auto-save function
+  const debouncedSave = useCallback(
+    debounce(async (currentProject: ProjectData, currentId: string | null) => {
+      if (!session?.user || !currentId) return;
+      
+      setIsSaving(true);
+      const { error } = await supabase
+        .from('assessments')
+        .update({
+          product_name: currentProject.productName,
+          project_data: currentProject,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', currentId);
+
+      if (error) {
+        console.error("Auto-save failed:", error);
+      }
+      setIsSaving(false);
+    }, 2000),
+    [session]
+  );
+
+  useEffect(() => {
+    if (assessmentId) {
+      debouncedSave(project, assessmentId);
+    }
+  }, [project, assessmentId, debouncedSave]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -149,7 +177,13 @@ const AssessmentWizard = () => {
       case 3: return <RiskIdentification project={project} updateProject={updateProject} category="Material" />;
       case 4: return <RiskIdentification project={project} updateProject={updateProject} category="Process" />;
       case 5:
-        const highPriorityRisks = project.risks.filter(r => r.riskLevel === 'HIGH' || r.riskLevel === 'MEDIUM');
+        const sorted5M = ['Material', 'Method', 'Machine', 'Manpower', 'Medium']
+          .map(cat => ({
+            cat,
+            count: project.risks.filter(r => r.primary5MCategory === cat).length
+          }))
+          .sort((a, b) => b.count - a.count);
+
         return (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -157,40 +191,68 @@ const AssessmentWizard = () => {
               <Card className="border-2 shadow-sm">
                 <CardContent className="p-6">
                   <h3 className="text-lg font-black text-slate-800 mb-4 uppercase tracking-tight flex items-center gap-2">
-                    <BarChart3 size={20} className="text-primary" /> 5M Distribution
+                    <BarChart3 size={20} className="text-primary" /> 5M Pareto Analysis
                   </h3>
-                  <div className="space-y-4">
-                    {['Material', 'Method', 'Machine', 'Manpower', 'Medium'].map(cat => {
-                      const count = project.risks.filter(r => r.primary5MCategory === cat).length;
+                  <div className="space-y-6">
+                    {sorted5M.map(({ cat, count }, idx) => {
                       const percentage = project.risks.length > 0 ? (count / project.risks.length) * 100 : 0;
                       return (
                         <div key={cat} className="space-y-1">
                           <div className="flex justify-between text-[10px] font-black uppercase text-slate-500">
-                            <span>{cat}</span>
-                            <span>{count} Risks</span>
+                            <span className={cn(idx === 0 && "text-red-500")}>{cat} {idx === 0 && "(Critical Source)"}</span>
+                            <span>{count} Risks ({Math.round(percentage)}%)</span>
                           </div>
-                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary transition-all duration-500" style={{ width: `${percentage}%` }} />
+                          <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                            <div 
+                              className={cn("h-full transition-all duration-1000", idx === 0 ? "bg-red-500" : "bg-primary")} 
+                              style={{ width: `${percentage}%` }} 
+                            />
                           </div>
                         </div>
                       );
                     })}
                   </div>
+                  <div className="mt-8 p-4 bg-slate-50 rounded-xl border-2 border-dashed">
+                    <div className="flex items-center gap-2 text-slate-700 font-bold text-sm mb-2">
+                      <TrendingUp size={16} className="text-primary" />
+                      Pareto Interpretation
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      The analysis shows that <span className="font-bold text-slate-900">{sorted5M[0].cat}</span> is the primary contributor to risk in this process. 
+                      Focusing control strategies on this category will yield the highest impact on overall quality stability.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             </div>
-            
-            {highPriorityRisks.length > 0 && (
-              <div className="space-y-12">
-                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight border-b-4 border-slate-900 pb-2">Deep Analysis: High Priority Risks</h3>
-                {highPriorityRisks.map(risk => (
-                  <div key={risk.id} className="space-y-8">
-                    <IshikawaDiagram risk={risk} />
-                    <BowtieDiagram risk={risk} />
-                  </div>
-                ))}
+
+            <div className="space-y-6">
+              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Risk Ranking (High to Low)</h3>
+              <div className="grid grid-cols-1 gap-4">
+                {project.risks
+                  .sort((a, b) => b.rpn - a.rpn)
+                  .map(risk => (
+                    <div key={risk.id} className="flex items-center justify-between p-4 bg-white border-2 rounded-xl shadow-sm">
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-12 h-12 rounded-lg flex items-center justify-center font-black text-white",
+                          risk.riskLevel === 'HIGH' ? "bg-red-500" : risk.riskLevel === 'MEDIUM' ? "bg-amber-500" : "bg-emerald-500"
+                        )}>
+                          {risk.rpn}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-400 uppercase">{risk.category} - {risk.itemName}</p>
+                          <p className="font-bold text-slate-900">{risk.failureMode}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-black uppercase text-slate-400">Affected CQA</p>
+                        <p className="font-bold text-primary">{risk.cqa}</p>
+                      </div>
+                    </div>
+                  ))}
               </div>
-            )}
+            </div>
           </div>
         );
       case 6:
@@ -234,6 +296,12 @@ const AssessmentWizard = () => {
             {assessmentId && (
               <CollaboratorManager assessmentId={assessmentId} isOwner={isOwner} />
             )}
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/10">
+              <div className={cn("w-2 h-2 rounded-full", isSaving ? "bg-amber-500 animate-pulse" : "bg-emerald-500")} />
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/60">
+                {isSaving ? "Saving..." : "Cloud Synced"}
+              </span>
+            </div>
             <Button 
               variant="ghost" 
               onClick={saveToCloud} 
@@ -241,7 +309,7 @@ const AssessmentWizard = () => {
               className="text-white hover:bg-white/10 font-bold"
             >
               <Save className={cn("mr-2 h-4 w-4", isSaving && "animate-spin")} />
-              {isSaving ? "Saving..." : "Save to Cloud"}
+              Manual Save
             </Button>
           </div>
         </div>

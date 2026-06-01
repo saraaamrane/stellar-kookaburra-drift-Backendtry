@@ -1,14 +1,14 @@
 "use client";
 
 import React from 'react';
-import { RiskItem, DeviationType, FiveMCategory } from '@/types/assessment';
+import { RiskItem, FiveMCategory, ProcessDeviation } from '@/types/assessment';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Star, ShieldCheck, Zap, AlertTriangle } from 'lucide-react';
+import { Trash2, Star, ShieldCheck, AlertCircle, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { calculateRPN, getRiskLevel } from '@/lib/risk-utils';
 
@@ -38,14 +38,15 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
         "px-6 py-4 flex justify-between items-center text-white font-black uppercase text-sm",
         risk.category === 'Material' ? "bg-blue-600" : "bg-purple-600"
       )}>
-        <span>{risk.category} FAILURE IDENTIFICATION</span>
+        <span>{risk.category} FMEA IDENTIFICATION</span>
         <Button variant="ghost" size="sm" onClick={onRemove} className="text-white hover:bg-white/20">
           <Trash2 size={16} className="mr-2" /> Remove
         </Button>
       </div>
 
       <CardContent className="p-0 divide-y-2 divide-slate-100">
-        <div className="p-6 space-y-4">
+        {/* Section 1: Identification & Failure Mode */}
+        <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-1.5">
               <Label className="text-[10px] font-bold uppercase text-slate-400">{risk.category === 'Material' ? 'Material Name' : 'Process Step'}</Label>
@@ -64,10 +65,23 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
                 </div>
               </>
             ) : (
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold uppercase text-slate-400">CCP</Label>
-                <Input value={risk.ccp} onChange={e => onUpdate({ ccp: e.target.value })} placeholder="e.g. Blending Time" className="h-9 text-sm" />
-              </div>
+              <>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold uppercase text-slate-400">CCP</Label>
+                  <Input value={risk.ccp} onChange={e => onUpdate({ ccp: e.target.value })} placeholder="e.g. Blending Time" className="h-9 text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold uppercase text-slate-400">Deviation</Label>
+                  <Select value={risk.processDeviation} onValueChange={v => onUpdate({ processDeviation: v as ProcessDeviation })}>
+                    <SelectTrigger className="h-9 text-sm font-bold"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="None">None</SelectItem>
+                      <SelectItem value="Above Target">Above Target</SelectItem>
+                      <SelectItem value="Below Target">Below Target</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
             )}
 
             <div className="space-y-1.5">
@@ -75,21 +89,20 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
               <Input value={risk.cqa} onChange={e => onUpdate({ cqa: e.target.value })} className="h-9 text-sm" />
             </div>
           </div>
-        </div>
 
-        <div className="p-6 space-y-4 bg-slate-50/30">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1.5">
               <Label className="text-[10px] font-bold uppercase text-slate-400">Failure Mode</Label>
               <Textarea value={risk.failureMode} onChange={e => onUpdate({ failureMode: e.target.value })} className="min-h-[80px] text-sm" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Effect</Label>
+              <Label className="text-[10px] font-bold uppercase text-slate-400">Potential Effect</Label>
               <Textarea value={risk.effect} onChange={e => onUpdate({ effect: e.target.value })} className="min-h-[80px] text-sm" />
             </div>
           </div>
         </div>
 
+        {/* Section 2: Scoring */}
         <div className="p-6 space-y-4">
           <div className="flex flex-wrap items-end gap-6">
             <div className="space-y-1.5">
@@ -139,6 +152,7 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
           </div>
         </div>
 
+        {/* Section 3: 5M Root Cause */}
         <div className="p-6 space-y-6 bg-blue-50/20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
@@ -174,28 +188,22 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove }) => {
           </div>
         </div>
 
+        {/* Section 4: CAPA */}
         <div className="p-6 space-y-4 bg-emerald-50/10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-emerald-600">
                 <ShieldCheck size={14} />
-                <Label className="text-[10px] font-black uppercase">Preventive</Label>
+                <Label className="text-[10px] font-black uppercase">Preventive Actions</Label>
               </div>
-              <Textarea value={risk.preventiveControls} onChange={e => onUpdate({ preventiveControls: e.target.value })} className="min-h-[100px] text-sm" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-blue-600">
-                <Zap size={14} />
-                <Label className="text-[10px] font-black uppercase">Detective</Label>
-              </div>
-              <Textarea value={risk.detectiveControls} onChange={e => onUpdate({ detectiveControls: e.target.value })} className="min-h-[100px] text-sm" />
+              <Textarea value={risk.preventiveActions} onChange={e => onUpdate({ preventiveActions: e.target.value })} className="min-h-[100px] text-sm" placeholder="Actions to prevent occurrence..." />
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-amber-600">
-                <AlertTriangle size={14} />
-                <Label className="text-[10px] font-black uppercase">Mitigating</Label>
+                <AlertCircle size={14} />
+                <Label className="text-[10px] font-black uppercase">Corrective Actions</Label>
               </div>
-              <Textarea value={risk.mitigatingControls} onChange={e => onUpdate({ mitigatingControls: e.target.value })} className="min-h-[100px] text-sm" />
+              <Textarea value={risk.correctiveActions} onChange={e => onUpdate({ correctiveActions: e.target.value })} className="min-h-[100px] text-sm" placeholder="Actions to correct if failure occurs..." />
             </div>
           </div>
         </div>

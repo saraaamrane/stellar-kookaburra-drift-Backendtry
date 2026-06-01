@@ -2,7 +2,7 @@ export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export type FiveMCategory = 'Material' | 'Method' | 'Machine' | 'Manpower' | 'Medium';
 
-export type DeviationType = 'NO' | 'LESS' | 'MORE' | 'REVERSE' | 'OTHER THAN';
+export type ProcessDeviation = 'Above Target' | 'Below Target' | 'None';
 
 export interface RiskItem {
   id: string;
@@ -12,9 +12,8 @@ export interface RiskItem {
   role?: string; // Role (for material)
   cma?: string; // Critical Material Attribute (for material)
   ccp?: string; // Critical Control Point (for process)
-  attribute: string; // CMA or CPP (legacy field, keeping for compatibility)
+  processDeviation?: ProcessDeviation; // HAZOP inspired
   cqa: string; // Affected CQA
-  target?: string; // CPP Target (for process)
   
   // Section 2: Failure Mode & Effect
   failureMode: string;
@@ -33,14 +32,9 @@ export interface RiskItem {
   secondary5MCategory?: FiveMCategory;
   secondary5MExplanation: string;
   
-  // Section 5: Deviations
-  deviations: DeviationType[];
-  deviationNotes: string;
-  
-  // Section 6: Control Strategy
-  preventiveControls: string;
-  detectiveControls: string;
-  mitigatingControls: string;
+  // Section 5: CAPA (Updated)
+  preventiveActions: string;
+  correctiveActions: string;
 }
 
 export interface FlowNode {

@@ -63,29 +63,6 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
         </Card>
       </div>
 
-      {/* Process Flow Summary */}
-      <Card className="border-2 shadow-none">
-        <CardHeader className="bg-slate-50 py-3 border-b">
-          <CardTitle className="text-xs font-black uppercase">Process Flow Sequence</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="flex flex-wrap gap-2">
-            {project.flowNodes.length > 0 ? (
-              project.flowNodes.map((node, idx) => (
-                <React.Fragment key={node.id}>
-                  <Badge variant="outline" className="px-3 py-1 font-bold border-2">
-                    {node.label}
-                  </Badge>
-                  {idx < project.flowNodes.length - 1 && <span className="text-slate-300">→</span>}
-                </React.Fragment>
-              ))
-            ) : (
-              <p className="text-sm text-slate-400 italic">No process steps defined.</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Risk Register Table */}
       <div className="space-y-4">
         <h3 className="text-lg font-black text-slate-900 uppercase flex items-center gap-2">
@@ -99,7 +76,8 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
                 <TableHead className="text-white font-bold text-[10px] uppercase">Category</TableHead>
                 <TableHead className="text-white font-bold text-[10px] uppercase">Item/Step</TableHead>
                 <TableHead className="text-white font-bold text-[10px] uppercase">Role / CCP</TableHead>
-                <TableHead className="text-white font-bold text-[10px] uppercase">CMA / Attribute</TableHead>
+                <TableHead className="text-white font-bold text-[10px] uppercase">CMA / Deviation</TableHead>
+                <TableHead className="text-white font-bold text-[10px] uppercase">Failure Mode</TableHead>
                 <TableHead className="text-white font-bold text-[10px] uppercase">CQA Impact</TableHead>
                 <TableHead className="text-white font-bold text-[10px] uppercase text-center">RPN</TableHead>
                 <TableHead className="text-white font-bold text-[10px] uppercase text-center">Level</TableHead>
@@ -112,8 +90,11 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
                     <TableCell className="text-[10px] font-bold uppercase text-slate-500">{risk.category}</TableCell>
                     <TableCell className="font-bold text-sm">{risk.itemName}</TableCell>
                     <TableCell className="text-sm">{risk.category === 'Material' ? risk.role : risk.ccp}</TableCell>
-                    <TableCell className="text-sm">{risk.category === 'Material' ? risk.cma : 'N/A'}</TableCell>
-                    <TableCell className="text-sm">{risk.cqa}</TableCell>
+                    <TableCell className="text-sm">
+                      {risk.category === 'Material' ? risk.cma : risk.processDeviation}
+                    </TableCell>
+                    <TableCell className="text-sm italic">{risk.failureMode}</TableCell>
+                    <TableCell className="text-sm font-bold text-primary">{risk.cqa}</TableCell>
                     <TableCell className="text-center font-black">{risk.rpn}</TableCell>
                     <TableCell className="text-center">
                       <Badge className={cn("font-black text-[10px]", getRiskColor(risk.riskLevel))}>
@@ -124,7 +105,7 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-slate-400 italic">
+                  <TableCell colSpan={8} className="text-center py-8 text-slate-400 italic">
                     No risks identified in this assessment.
                   </TableCell>
                 </TableRow>
@@ -134,24 +115,18 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
         </div>
       </div>
 
-      {/* Control Strategy Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:grid-cols-3">
+      {/* CAPA Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:grid-cols-2">
         <div className="p-4 bg-emerald-50 border-2 border-emerald-100 rounded-xl">
-          <h4 className="text-[10px] font-black uppercase text-emerald-700 mb-2">Preventive Controls</h4>
+          <h4 className="text-[10px] font-black uppercase text-emerald-700 mb-2">Preventive Actions Summary</h4>
           <p className="text-xs text-emerald-900 leading-relaxed">
-            {project.risks.filter(r => r.preventiveControls).length} active preventive measures identified.
-          </p>
-        </div>
-        <div className="p-4 bg-blue-50 border-2 border-blue-100 rounded-xl">
-          <h4 className="text-[10px] font-black uppercase text-blue-700 mb-2">Detective Controls</h4>
-          <p className="text-xs text-blue-900 leading-relaxed">
-            {project.risks.filter(r => r.detectiveControls).length} monitoring/testing points established.
+            {project.risks.filter(r => r.preventiveActions).length} active preventive measures identified across the assessment.
           </p>
         </div>
         <div className="p-4 bg-amber-50 border-2 border-amber-100 rounded-xl">
-          <h4 className="text-[10px] font-black uppercase text-amber-700 mb-2">Mitigation Strategy</h4>
+          <h4 className="text-[10px] font-black uppercase text-amber-700 mb-2">Corrective Actions Summary</h4>
           <p className="text-xs text-amber-900 leading-relaxed">
-            {project.risks.filter(r => r.mitigatingControls).length} contingency plans defined.
+            {project.risks.filter(r => r.correctiveActions).length} contingency plans defined for potential failures.
           </p>
         </div>
       </div>
