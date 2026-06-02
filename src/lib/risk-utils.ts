@@ -1,4 +1,3 @@
-=10).">
 import { RiskLevel } from '../types/assessment';
 
 export const calculateRPN = (s: number, o: number, d: number): number => s * o * d;
