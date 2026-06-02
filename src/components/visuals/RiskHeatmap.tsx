@@ -14,9 +14,10 @@ const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ risks }) => {
   };
 
   const getCellColor = (s: number, o: number) => {
+    // We assume max detection (3) to show the potential risk level for this cell
     const rpn_max = s * o * 3;
-    if (rpn_max >= 18 || s === 3) return 'bg-red-100 border-red-200';
-    if (rpn_max >= 8) return 'bg-amber-100 border-amber-200';
+    if (rpn_max >= 10) return 'bg-red-100 border-red-200';
+    if (rpn_max >= 5) return 'bg-amber-100 border-amber-200';
     return 'bg-emerald-100 border-emerald-200';
   };
 

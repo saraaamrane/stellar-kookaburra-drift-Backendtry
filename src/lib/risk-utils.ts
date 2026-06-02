@@ -1,11 +1,12 @@
+=10).">
 import { RiskLevel } from '../types/assessment';
 
 export const calculateRPN = (s: number, o: number, d: number): number => s * o * d;
 
 export const getRiskLevel = (s: number, o: number, d: number): RiskLevel => {
   const rpn = s * o * d;
-  if (rpn >= 18 || (s === 3 && d === 3)) return 'HIGH';
-  if (rpn >= 8) return 'MEDIUM';
+  if (rpn >= 10) return 'HIGH';
+  if (rpn >= 5) return 'MEDIUM';
   return 'LOW';
 };
 
