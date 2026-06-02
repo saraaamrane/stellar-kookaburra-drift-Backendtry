@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ProjectData } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
@@ -41,6 +41,7 @@ const AssessmentWizard = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [assessmentId, setAssessmentId] = useState<string | null>(id === 'new' ? null : id || null);
   const [isOwner, setIsOwner] = useState(false);
+  const isCreatingRef = useRef(false);
   
   const [project, setProject] = useState<ProjectData>({
     productName: '',
@@ -62,7 +63,7 @@ const AssessmentWizard = () => {
       const { error } = await supabase
         .from('assessments')
         .update({
-          product_name: currentProject.productName,
+          product_name: currentProject.productName || 'Untitled Assessment',
           project_data: currentProject,
           updated_at: new Date().toISOString()
         })
@@ -72,19 +73,54 @@ const AssessmentWizard = () => {
         console.error("Auto-save failed:", error);
       }
       setIsSaving(false);
-    }, 2000),
+    }, 1500),
     [session]
   );
 
+  // Handle initial creation for "new" assessments
+  useEffect(() => {
+    const handleInitialCreation = async () => {
+      if (id === 'new' && !assessmentId && !isCreatingRef.current && project.productName.trim().length > 2 && session?.user) {
+        isCreatingRef.current = true;
+        setIsSaving(true);
+        
+        const { data, error } = await supabase
+          .from('assessments')
+          .insert({
+            user_id: session.user.id,
+            product_name: project.productName,
+            project_data: project,
+            updated_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (data && !error) {
+          setAssessmentId(data.id);
+          setIsOwner(true);
+          // Silently update URL without full navigation to avoid losing state
+          window.history.replaceState(null, '', `/assessment/${data.id}`);
+          toast.success("Assessment created and auto-saving enabled");
+        }
+        setIsSaving(false);
+        isCreatingRef.current = false;
+      }
+    };
+
+    handleInitialCreation();
+  }, [project.productName, id, assessmentId, session]);
+
+  // Trigger auto-save on project changes
   useEffect(() => {
     if (assessmentId) {
       debouncedSave(project, assessmentId);
     }
   }, [project, assessmentId, debouncedSave]);
 
+  // Load existing assessment
   useEffect(() => {
     const loadData = async () => {
-      if (assessmentId && session?.user) {
+      if (assessmentId && assessmentId !== 'new' && session?.user) {
         const { data, error } = await supabase
           .from('assessments')
           .select('*')
@@ -115,7 +151,7 @@ const AssessmentWizard = () => {
     
     const payload = {
       user_id: session.user.id,
-      product_name: project.productName,
+      product_name: project.productName || 'Untitled Assessment',
       project_data: project,
       updated_at: new Date().toISOString()
     };
