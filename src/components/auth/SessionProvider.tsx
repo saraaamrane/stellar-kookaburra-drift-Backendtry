@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -12,19 +12,39 @@ const SessionContext = createContext<{ session: Session | null; loading: boolean
 export const SessionProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const mounted = useRef(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
+    mounted.current = true;
+
+    // Initial session check
+    const initSession = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (mounted.current) {
+          setSession(initialSession);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error fetching session:", error);
+        if (mounted.current) setLoading(false);
+      }
+    };
+
+    initSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      if (mounted.current) {
+        setSession(currentSession);
+        setLoading(false);
+      }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted.current = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (

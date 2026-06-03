@@ -21,6 +21,9 @@ const Login = () => {
   
   if (session) return <Navigate to="/" replace />;
 
+  // Get the current origin for the redirect URL
+  const redirectTo = window.location.origin;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <Card className="w-full max-w-md border-2 shadow-xl">
@@ -35,6 +38,7 @@ const Login = () => {
           <Auth
             supabaseClient={supabase}
             providers={[]}
+            redirectTo={redirectTo}
             appearance={{
               theme: ThemeSupa,
               variables: {
