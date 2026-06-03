@@ -1,15 +1,37 @@
 "use client";
 
+import { useEffect } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShieldCheck } from 'lucide-react';
-import { Navigate } from 'react-router-dom';
+import { ShieldCheck, AlertCircle } from 'lucide-react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useSession } from '@/components/auth/SessionProvider';
+import { toast } from 'sonner';
 
 const Login = () => {
   const { session, loading } = useSession();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check for error parameters in the URL hash (common with Supabase auth redirects)
+    const hash = window.location.hash;
+    if (hash && hash.includes('error=')) {
+      const params = new URLSearchParams(hash.replace('#', '?'));
+      const errorDescription = params.get('error_description');
+      const errorCode = params.get('error_code');
+      
+      if (errorDescription) {
+        toast.error(errorDescription.replace(/\+/g, ' '), {
+          description: errorCode === 'otp_expired' ? "The link may have expired or was already used. Please try signing up again or check your Supabase 'Site URL' settings." : undefined,
+          duration: 6000,
+        });
+        // Clear the hash to prevent repeated toasts
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    }
+  }, [location]);
 
   if (loading) {
     return (
@@ -21,7 +43,6 @@ const Login = () => {
   
   if (session) return <Navigate to="/" replace />;
 
-  // Get the current origin for the redirect URL
   const redirectTo = window.location.origin;
 
   return (
@@ -34,7 +55,7 @@ const Login = () => {
           <CardTitle className="text-2xl font-black tracking-tight">IQRAF 2.0 Login</CardTitle>
           <p className="text-sm text-slate-500">Sign in to manage your risk assessments</p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <Auth
             supabaseClient={supabase}
             providers={[]}
@@ -52,6 +73,14 @@ const Login = () => {
             }}
             theme="light"
           />
+          
+          <div className="mt-6 p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
+            <AlertCircle className="text-amber-600 shrink-0" size={18} />
+            <div className="text-[11px] text-amber-800 leading-relaxed">
+              <p className="font-bold mb-1">Trouble verifying email?</p>
+              <p>Ensure your Supabase <strong>Site URL</strong> is set to <code className="bg-white px-1 rounded">{redirectTo}</code> in the Supabase Dashboard (Authentication {'>'} URL Configuration).</p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
