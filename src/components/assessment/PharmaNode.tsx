@@ -3,7 +3,6 @@
 import React, { memo, useState, useEffect, useRef } from 'react';
 import { Handle, Position, NodeProps, useReactFlow } from '@xyflow/react';
 import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
 const PharmaNode = ({ id, data, selected }: NodeProps) => {
@@ -13,7 +12,7 @@ const PharmaNode = ({ id, data, selected }: NodeProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const type = data.type as string;
-  const isIPC = type === 'IPC' || type === 'Testing';
+  const isIPC = type === 'IPC' || type === 'Target Process Parameters';
   const isIngredient = type === 'Ingredient';
 
   useEffect(() => {
@@ -62,7 +61,7 @@ const PharmaNode = ({ id, data, selected }: NodeProps) => {
       <div className="text-center" onDoubleClick={handleDoubleClick}>
         {isIPC && (
           <div className="text-[10px] font-black text-red-600 uppercase mb-1">
-            {type === 'Testing' ? 'In process testing:' : 'IPC:'}
+            {type === 'Target Process Parameters' ? 'Target Process Parameters:' : 'IPC:'}
           </div>
         )}
         {isIngredient && (

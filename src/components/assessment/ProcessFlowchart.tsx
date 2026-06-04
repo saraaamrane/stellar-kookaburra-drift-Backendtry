@@ -67,7 +67,8 @@ const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) 
       type: 'pharma',
       position: { x: 250, y: nodes.length * 100 + 50 },
       data: { 
-        label: type === 'Ingredient' ? 'New Ingredient Group' : 'New Process Step',
+        label: type === 'Ingredient' ? 'New Ingredient Group' : 
+               type === 'Target Process Parameters' ? 'New Parameters' : 'New Process Step',
         type: type 
       },
     };
@@ -119,8 +120,8 @@ const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) 
             <Button size="sm" variant="outline" onClick={() => addNode('IPC')} className="text-[10px] font-bold h-8 border-red-200 hover:bg-red-50">
               + IPC
             </Button>
-            <Button size="sm" variant="outline" onClick={() => addNode('Testing')} className="text-[10px] font-bold h-8 border-red-200 hover:bg-red-50">
-              + Testing
+            <Button size="sm" variant="outline" onClick={() => addNode('Target Process Parameters')} className="text-[10px] font-bold h-8 border-red-200 hover:bg-red-50">
+              + Target Parameters
             </Button>
           </div>
           <div className="border-t pt-2 mt-1">
