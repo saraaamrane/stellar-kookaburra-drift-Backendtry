@@ -23,7 +23,7 @@ interface RiskFormProps {
 }
 
 const FIVE_M: FiveMCategory[] = ['Material', 'Method', 'Machine', 'Manpower', 'Medium'];
-const DEVIATIONS: ProcessDeviation[] = ['Above Target', 'Below Target'];
+const DEVIATIONS: ProcessDeviation[] = ['Above Target', 'Below Target', 'Other than'];
 
 const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplicate }) => {
   const { session } = useSession();

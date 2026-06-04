@@ -1,9 +1,10 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ProjectData, RiskItem } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
-import { Plus, AlertCircle, Layers } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, AlertCircle, Layers, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import RiskForm from './RiskForm';
 import RiskLibraryDialog from './RiskLibraryDialog';
@@ -15,6 +16,8 @@ interface RiskIdentificationProps {
 }
 
 const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, updateProject, category }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
   const addRisk = (template?: Partial<RiskItem>) => {
     const newRisk: RiskItem = {
       id: crypto.randomUUID(),
@@ -72,28 +75,46 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
     });
   };
 
-  const filteredRisks = project.risks.filter(r => r.category === category);
+  const filteredRisks = project.risks
+    .filter(r => r.category === category)
+    .filter(r => 
+      r.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.failureMode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.cqa.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center bg-white p-6 rounded-3xl border-2 shadow-sm sticky top-4 z-10">
-        <div className="flex items-center gap-4">
-          <div className={cn(
-            "w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg",
-            category === 'Material' ? "bg-blue-600" : "bg-purple-600"
-          )}>
-            <AlertCircle className="text-white" size={28} />
+      <div className="bg-white p-6 rounded-3xl border-2 shadow-sm sticky top-4 z-10 space-y-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className={cn(
+              "w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg",
+              category === 'Material' ? "bg-blue-600" : "bg-purple-600"
+            )}>
+              <AlertCircle className="text-white" size={28} />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-slate-900 tracking-tight">{category} Risk Identification</h3>
+              <p className="text-sm text-slate-500 font-medium">Integrated FMEA + HAZOP Analysis</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{category} Risk Identification</h3>
-            <p className="text-sm text-slate-500 font-medium">Integrated FMEA + HAZOP Analysis</p>
+          <div className="flex gap-3">
+            <RiskLibraryDialog category={category} onImport={addRisk} />
+            <Button onClick={() => addRisk()} className="rounded-2xl font-black h-14 px-8 shadow-xl hover:scale-105 transition-transform">
+              <Plus className="mr-2 h-6 w-6" /> ADD NEW {category.toUpperCase()} RISK
+            </Button>
           </div>
         </div>
-        <div className="flex gap-3">
-          <RiskLibraryDialog category={category} onImport={addRisk} />
-          <Button onClick={() => addRisk()} className="rounded-2xl font-black h-14 px-8 shadow-xl hover:scale-105 transition-transform">
-            <Plus className="mr-2 h-6 w-6" /> ADD NEW {category.toUpperCase()} RISK
-          </Button>
+
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+          <Input 
+            placeholder={`Search ${category.toLowerCase()} risks by name, failure mode, or CQA...`}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-12 h-12 rounded-2xl border-2 bg-slate-50/50 focus:bg-white transition-all"
+          />
         </div>
       </div>
 
@@ -101,8 +122,12 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
         {filteredRisks.length === 0 ? (
           <div className="text-center py-32 bg-slate-50 rounded-[2rem] border-4 border-dashed border-slate-200">
             <Layers className="mx-auto text-slate-200 mb-4" size={64} />
-            <p className="text-slate-400 font-bold text-xl">No {category.toLowerCase()} risks identified yet.</p>
-            <p className="text-slate-300 text-sm mt-2">Click the button above to start your assessment.</p>
+            <p className="text-slate-400 font-bold text-xl">
+              {searchQuery ? "No matching risks found." : `No ${category.toLowerCase()} risks identified yet.`}
+            </p>
+            <p className="text-slate-300 text-sm mt-2">
+              {searchQuery ? "Try a different search term." : "Click the button above to start your assessment."}
+            </p>
           </div>
         ) : (
           filteredRisks.map((risk) => (
