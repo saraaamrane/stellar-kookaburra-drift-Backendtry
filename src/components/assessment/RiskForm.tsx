@@ -78,12 +78,11 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
   };
 
   // Sync Failure Mode for Process risks when Deviation or CPP changes
-  // It auto-generates a starting point, but the user can now edit it manually
+  // It auto-generates a starting point: [CPP] [Deviation]
   useEffect(() => {
     if (risk.category === 'Process' && risk.processDeviation && risk.cpp) {
-      const autoFailureMode = `${risk.processDeviation} ${risk.cpp}`;
+      const autoFailureMode = `${risk.cpp} ${risk.processDeviation}`;
       // Only auto-update if it's currently empty to avoid overwriting manual tweaks
-      // or if the user hasn't changed it from the previous auto-generated value
       if (!risk.failureMode) {
         onUpdate({ failureMode: autoFailureMode });
       }
