@@ -78,10 +78,13 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
   };
 
   // Sync Failure Mode for Process risks when Deviation or CPP changes
+  // It auto-generates a starting point, but the user can now edit it manually
   useEffect(() => {
     if (risk.category === 'Process' && risk.processDeviation && risk.cpp) {
       const autoFailureMode = `${risk.processDeviation} ${risk.cpp}`;
-      if (risk.failureMode !== autoFailureMode) {
+      // Only auto-update if it's currently empty to avoid overwriting manual tweaks
+      // or if the user hasn't changed it from the previous auto-generated value
+      if (!risk.failureMode) {
         onUpdate({ failureMode: autoFailureMode });
       }
     }
@@ -164,13 +167,12 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-1.5">
               <Label className="text-[10px] font-bold uppercase text-slate-400">
-                {risk.category === 'Process' ? 'Failure Mode (Auto-generated)' : 'Failure Mode'}
+                {risk.category === 'Process' ? 'Failure Mode (Auto-suggested)' : 'Failure Mode'}
               </Label>
               <Textarea 
                 value={risk.failureMode} 
                 onChange={e => onUpdate({ failureMode: e.target.value })} 
-                readOnly={risk.category === 'Process'}
-                className={cn("min-h-[100px] text-sm border-2 placeholder:font-normal", risk.category === 'Process' && "bg-slate-50 font-medium")}
+                className="min-h-[100px] text-sm border-2 placeholder:font-normal font-medium"
                 placeholder="Describe how it fails..."
               />
             </div>
