@@ -13,13 +13,14 @@ import {
   applyEdgeChanges,
   NodeChange,
   EdgeChange,
-  Panel
+  Panel,
+  ReactFlowProvider
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { ProjectData } from '@/types/assessment';
 import PharmaNode from './PharmaNode';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, MousePointer2, Share2 } from 'lucide-react';
+import { Plus, Trash2, MousePointer2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProcessFlowchartProps {
@@ -31,8 +32,7 @@ const nodeTypes = {
   pharma: PharmaNode,
 };
 
-const ProcessFlowchart: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) => {
-  // Ensure nodes and edges exist
+const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) => {
   const nodes = useMemo(() => project.nodes || [], [project.nodes]);
   const edges = useMemo(() => project.edges || [], [project.edges]);
 
@@ -138,7 +138,7 @@ const ProcessFlowchart: React.FC<ProcessFlowchartProps> = ({ project, updateProj
           <ul className="text-[10px] text-slate-500 space-y-1 font-medium">
             <li>• Drag nodes to reposition</li>
             <li>• Drag from circles to connect</li>
-            <li>• Double-click label to edit (coming soon)</li>
+            <li>• <strong>Double-click label to edit</strong></li>
             <li>• Select and press Delete to remove</li>
           </ul>
         </Panel>
@@ -155,5 +155,11 @@ const ProcessFlowchart: React.FC<ProcessFlowchartProps> = ({ project, updateProj
     </div>
   );
 };
+
+const ProcessFlowchart: React.FC<ProcessFlowchartProps> = (props) => (
+  <ReactFlowProvider>
+    <FlowInner {...props} />
+  </ReactFlowProvider>
+);
 
 export default ProcessFlowchart;
