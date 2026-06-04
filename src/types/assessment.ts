@@ -1,3 +1,5 @@
+import { Node, Edge } from '@xyflow/react';
+
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export type FiveMCategory = 'Material' | 'Method' | 'Machine' | 'Manpower' | 'Medium';
@@ -7,32 +9,23 @@ export type ProcessDeviation = 'Above Target' | 'Below Target' | 'Other than';
 export interface RiskItem {
   id: string;
   category: 'Material' | 'Process';
-  // Section 1: Identification
-  itemName: string; // Material name or Process step
-  role?: string; // Role (for material)
-  cma?: string; // Critical Material Attribute (for material)
-  cpp?: string; // Critical Process Parameter (for process)
-  processDeviation?: ProcessDeviation; // HAZOP inspired
-  
-  // Section 2: Failure Mode & Effect
-  failureMode: string; // For Material: Manual entry. For Process: Derived from Deviation.
+  itemName: string;
+  role?: string;
+  cma?: string;
+  cpp?: string;
+  processDeviation?: ProcessDeviation;
+  failureMode: string;
   effect: string;
-  cqa: string; // Affected CQA (Moved here in flow)
-  
-  // Section 3: Scoring
+  cqa: string;
   severity: number;
   occurrence: number;
   detection: number;
   rpn: number;
   riskLevel: RiskLevel;
-  
-  // Section 4: Integrated 5M
   primary5MCategory: FiveMCategory;
   primary5MExplanation: string;
   secondary5MCategory?: FiveMCategory;
   secondary5MExplanation: string;
-  
-  // Section 5: CAPA
   preventiveActions: string;
   correctiveActions: string;
 }
@@ -51,6 +44,10 @@ export interface ProjectData {
   targetMarket: string;
   assessor: string;
   scope: string;
+  // Flowchart data
+  nodes: Node[];
+  edges: Edge[];
+  // Legacy support
   flowNodes: FlowNode[];
   risks: RiskItem[];
 }

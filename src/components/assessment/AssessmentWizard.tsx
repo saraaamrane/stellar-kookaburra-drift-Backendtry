@@ -50,6 +50,8 @@ const AssessmentWizard = () => {
     targetMarket: '',
     assessor: '',
     scope: '',
+    nodes: [],
+    edges: [],
     flowNodes: [],
     risks: []
   });
@@ -98,7 +100,6 @@ const AssessmentWizard = () => {
         if (data && !error) {
           setAssessmentId(data.id);
           setIsOwner(true);
-          // Silently update URL without full navigation to avoid losing state
           window.history.replaceState(null, '', `/assessment/${data.id}`);
           toast.success("Assessment created and auto-saving enabled");
         }
@@ -128,7 +129,13 @@ const AssessmentWizard = () => {
           .single();
 
         if (data && !error) {
-          setProject(data.project_data as ProjectData);
+          const loadedProject = data.project_data as ProjectData;
+          // Ensure nodes and edges are initialized for older assessments
+          setProject({
+            ...loadedProject,
+            nodes: loadedProject.nodes || [],
+            edges: loadedProject.edges || []
+          });
           setIsOwner(data.user_id === session.user.id);
           if (currentPhase === 0) setCurrentPhase(1);
         } else if (error) {
@@ -263,7 +270,6 @@ const AssessmentWizard = () => {
               </Card>
             </div>
 
-            {/* Root Cause Finder Tool */}
             <RootCauseFinder risks={project.risks} />
 
             <div className="space-y-6">
