@@ -121,7 +121,10 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
       <CardContent className="p-0 divide-y-2 divide-slate-100">
         {/* Section 1: Identification */}
         <div className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className={cn(
+            "grid gap-4",
+            risk.category === 'Material' ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 md:grid-cols-4"
+          )}>
             <div className="space-y-1.5">
               <Label className="text-[10px] font-bold uppercase text-slate-400">{risk.category === 'Material' ? 'Material Name' : 'Process Step'}</Label>
               <Input 
@@ -148,6 +151,10 @@ const RiskForm: React.FC<RiskFormProps> = ({ risk, onUpdate, onRemove, onDuplica
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-bold uppercase text-slate-400">CPP (Parameter)</Label>
                   <Input value={risk.cpp} onChange={e => onUpdate({ cpp: e.target.value })} placeholder="e.g. Mixing Speed" className="h-10 text-sm border-2 placeholder:font-normal" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold uppercase text-slate-400">Target Parameters</Label>
+                  <Input value={risk.targetParameters} onChange={e => onUpdate({ targetParameters: e.target.value })} placeholder="e.g. 25-30 RPM" className="h-10 text-sm border-2 placeholder:font-normal" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[10px] font-bold uppercase text-slate-400">Deviation (HAZOP)</Label>

@@ -13,6 +13,7 @@ export interface RiskItem {
   role?: string;
   cma?: string;
   cpp?: string;
+  targetParameters?: string;
   processDeviation?: ProcessDeviation;
   failureMode: string;
   effect: string;
