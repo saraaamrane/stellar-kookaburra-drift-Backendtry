@@ -42,8 +42,8 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
       preventiveActions: template?.preventiveActions || '',
       correctiveActions: template?.correctiveActions || ''
     };
-    // Prepend new risk to the top
-    updateProject({ risks: [newRisk, ...project.risks] });
+    // Append new risk to the end to maintain entry order
+    updateProject({ risks: [...project.risks, newRisk] });
   };
 
   const updateRisk = (id: string, updates: Partial<RiskItem>) => {

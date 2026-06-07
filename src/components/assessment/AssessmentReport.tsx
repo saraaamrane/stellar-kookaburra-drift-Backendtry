@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { ProjectData } from '@/types/assessment';
+import { ProjectData, RiskItem } from '@/types/assessment';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,28 @@ interface AssessmentReportProps {
 }
 
 const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
+  // Sort risks: API Materials -> Other Materials -> Process Risks
+  // Within each group, maintain the original array order (entry order)
+  const sortedRisks = [...project.risks].sort((a, b) => {
+    const getPriority = (risk: RiskItem) => {
+      if (risk.category === 'Material') {
+        const isApi = risk.role?.toLowerCase().includes('api') || risk.itemName?.toLowerCase().includes('api');
+        return isApi ? 0 : 1;
+      }
+      return 2; // Process risks
+    };
+
+    const priorityA = getPriority(a);
+    const priorityB = getPriority(b);
+
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    // If priorities are equal, maintain original order (stable sort)
+    return 0;
+  });
+
   return (
     <div className="space-y-8 print:space-y-4 print-container">
       {/* Header Section */}
@@ -85,8 +107,8 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {project.risks.length > 0 ? (
-                project.risks.map((risk) => (
+              {sortedRisks.length > 0 ? (
+                sortedRisks.map((risk) => (
                   <TableRow key={risk.id} className="print:border-b print:border-slate-200">
                     <TableCell className="text-[8px] font-bold uppercase text-slate-500">{risk.category}</TableCell>
                     <TableCell className="font-bold text-[9px]">{risk.itemName}</TableCell>
