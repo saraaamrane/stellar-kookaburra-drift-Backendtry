@@ -15,7 +15,7 @@ interface AssessmentReportProps {
 
 const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
   return (
-    <div className="space-y-8 print:space-y-4">
+    <div className="space-y-8 print:space-y-6 print-container">
       {/* Header Section */}
       <div className="flex justify-between items-start border-b-4 border-slate-900 pb-6">
         <div>
@@ -32,7 +32,7 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
       </div>
 
       {/* Project Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:grid-cols-2">
         <Card className="border-2 shadow-none">
           <CardHeader className="bg-slate-50 py-3 border-b">
             <CardTitle className="text-xs font-black uppercase flex items-center gap-2">
@@ -69,37 +69,37 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
           <AlertTriangle size={20} className="text-amber-500" /> Risk Register
         </h3>
         
-        <div className="border-2 rounded-xl overflow-hidden">
+        <div className="border-2 rounded-xl overflow-hidden print:border-slate-300">
           <Table>
-            <TableHeader className="bg-slate-900">
+            <TableHeader className="bg-slate-900 print:bg-slate-100">
               <TableRow className="hover:bg-slate-900">
-                <TableHead className="text-white font-bold text-[10px] uppercase">Category</TableHead>
-                <TableHead className="text-white font-bold text-[10px] uppercase">Item/Step</TableHead>
-                <TableHead className="text-white font-bold text-[10px] uppercase">Role / CPP</TableHead>
-                <TableHead className="text-white font-bold text-[10px] uppercase">CMA / Deviation</TableHead>
-                <TableHead className="text-white font-bold text-[10px] uppercase">Failure Mode</TableHead>
-                <TableHead className="text-white font-bold text-[10px] uppercase">Potential Effect</TableHead>
-                <TableHead className="text-white font-bold text-[10px] uppercase">Affected CQA</TableHead>
-                <TableHead className="text-white font-bold text-[10px] uppercase text-center">RPN</TableHead>
-                <TableHead className="text-white font-bold text-[10px] uppercase text-center">Level</TableHead>
+                <TableHead className="text-white print:text-slate-900 font-bold text-[9px] uppercase">Category</TableHead>
+                <TableHead className="text-white print:text-slate-900 font-bold text-[9px] uppercase">Item/Step</TableHead>
+                <TableHead className="text-white print:text-slate-900 font-bold text-[9px] uppercase">Role / CPP</TableHead>
+                <TableHead className="text-white print:text-slate-900 font-bold text-[9px] uppercase">CMA / Deviation</TableHead>
+                <TableHead className="text-white print:text-slate-900 font-bold text-[9px] uppercase">Failure Mode</TableHead>
+                <TableHead className="text-white print:text-slate-900 font-bold text-[9px] uppercase">Potential Effect</TableHead>
+                <TableHead className="text-white print:text-slate-900 font-bold text-[9px] uppercase">Affected CQA</TableHead>
+                <TableHead className="text-white print:text-slate-900 font-bold text-[9px] uppercase text-center">RPN</TableHead>
+                <TableHead className="text-white print:text-slate-900 font-bold text-[9px] uppercase text-center">Level</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {project.risks.length > 0 ? (
                 project.risks.map((risk) => (
-                  <TableRow key={risk.id}>
-                    <TableCell className="text-[10px] font-bold uppercase text-slate-500">{risk.category}</TableCell>
-                    <TableCell className="font-bold text-sm">{risk.itemName}</TableCell>
-                    <TableCell className="text-sm">{risk.category === 'Material' ? risk.role : risk.cpp}</TableCell>
-                    <TableCell className="text-sm">
+                  <TableRow key={risk.id} className="print:border-b print:border-slate-200">
+                    <TableCell className="text-[9px] font-bold uppercase text-slate-500">{risk.category}</TableCell>
+                    <TableCell className="font-bold text-[10px]">{risk.itemName}</TableCell>
+                    <TableCell className="text-[10px]">{risk.category === 'Material' ? risk.role : risk.cpp}</TableCell>
+                    <TableCell className="text-[10px]">
                       {risk.category === 'Material' ? risk.cma : risk.processDeviation}
                     </TableCell>
-                    <TableCell className="text-sm italic">{risk.failureMode}</TableCell>
-                    <TableCell className="text-sm">{risk.effect}</TableCell>
-                    <TableCell className="text-sm font-bold text-primary">{risk.cqa}</TableCell>
-                    <TableCell className="text-center font-black">{risk.rpn}</TableCell>
+                    <TableCell className="text-[10px] italic">{risk.failureMode}</TableCell>
+                    <TableCell className="text-[10px]">{risk.effect}</TableCell>
+                    <TableCell className="text-[10px] font-bold text-primary print:text-blue-700">{risk.cqa}</TableCell>
+                    <TableCell className="text-center font-black text-[10px]">{risk.rpn}</TableCell>
                     <TableCell className="text-center">
-                      <Badge className={cn("font-black text-[10px]", getRiskColor(risk.riskLevel))}>
+                      <Badge className={cn("font-black text-[9px] print:border print:text-black", getRiskColor(risk.riskLevel))}>
                         {risk.riskLevel}
                       </Badge>
                     </TableCell>
@@ -119,15 +119,15 @@ const AssessmentReport: React.FC<AssessmentReportProps> = ({ project }) => {
 
       {/* CAPA Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:grid-cols-2">
-        <div className="p-4 bg-emerald-50 border-2 border-emerald-100 rounded-xl">
-          <h4 className="text-[10px] font-black uppercase text-emerald-700 mb-2">Preventive Actions Summary</h4>
-          <p className="text-xs text-emerald-900 leading-relaxed">
+        <div className="p-4 bg-emerald-50 border-2 border-emerald-100 rounded-xl print:bg-white print:border-slate-200">
+          <h4 className="text-[10px] font-black uppercase text-emerald-700 print:text-slate-900 mb-2">Preventive Actions Summary</h4>
+          <p className="text-xs text-emerald-900 print:text-slate-700 leading-relaxed">
             {project.risks.filter(r => r.preventiveActions).length} active preventive measures identified across the assessment.
           </p>
         </div>
-        <div className="p-4 bg-amber-50 border-2 border-amber-100 rounded-xl">
-          <h4 className="text-[10px] font-black uppercase text-amber-700 mb-2">Corrective Actions Summary</h4>
-          <p className="text-xs text-amber-900 leading-relaxed">
+        <div className="p-4 bg-amber-50 border-2 border-amber-100 rounded-xl print:bg-white print:border-slate-200">
+          <h4 className="text-[10px] font-black uppercase text-amber-700 print:text-slate-900 mb-2">Corrective Actions Summary</h4>
+          <p className="text-xs text-amber-900 print:text-slate-700 leading-relaxed">
             {project.risks.filter(r => r.correctiveActions).length} contingency plans defined for potential failures.
           </p>
         </div>
