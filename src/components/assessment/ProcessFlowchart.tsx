@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { 
   ReactFlow, 
   Background, 
@@ -14,14 +14,18 @@ import {
   NodeChange,
   EdgeChange,
   Panel,
-  ReactFlowProvider
+  ReactFlowProvider,
+  useReactFlow,
+  getRectOfNodes,
+  getTransformForBounds
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { ProjectData } from '@/types/assessment';
 import PharmaNode from './PharmaNode';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, MousePointer2 } from 'lucide-react';
+import { Plus, Trash2, MousePointer2, Download, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { toPng } from 'html-to-image';
 
 interface ProcessFlowchartProps {
   project: ProjectData;
@@ -33,6 +37,7 @@ const nodeTypes = {
 };
 
 const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) => {
+  const { getNodes, getEdges } = useReactFlow();
   const nodes = useMemo(() => project.nodes || [], [project.nodes]);
   const edges = useMemo(() => project.edges || [], [project.edges]);
 
@@ -92,6 +97,39 @@ const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) 
     toast.success("Deleted selected elements");
   };
 
+  const onSaveImage = async () => {
+    const nodes = getNodes();
+    if (nodes.length === 0) return;
+
+    const nodesBounds = getRectOfNodes(nodes);
+    const transform = getTransformForBounds(nodesBounds, 1024, 768, 0.5, 2);
+
+    const viewport = document.querySelector('.react-flow__viewport') as HTMLElement;
+    if (!viewport) return;
+
+    try {
+      const dataUrl = await toPng(viewport, {
+        backgroundColor: '#f8fafc',
+        width: 1024,
+        height: 768,
+        style: {
+          width: '1024px',
+          height: '768px',
+          transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
+        },
+      });
+
+      const link = document.createElement('a');
+      link.download = `${project.productName || 'flowchart'}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success("Flowchart saved as PNG");
+    } catch (error) {
+      console.error("Failed to export image:", error);
+      toast.error("Failed to save image");
+    }
+  };
+
   return (
     <div className="h-[700px] w-full border-4 border-slate-200 rounded-3xl overflow-hidden bg-slate-50 relative shadow-2xl">
       <ReactFlow
@@ -124,7 +162,10 @@ const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) 
               + Target Parameters
             </Button>
           </div>
-          <div className="border-t pt-2 mt-1">
+          <div className="border-t pt-2 mt-1 space-y-2">
+            <Button size="sm" variant="secondary" onClick={onSaveImage} className="w-full text-[10px] font-bold h-8 bg-slate-100 hover:bg-slate-200">
+              <ImageIcon size={12} className="mr-1" /> Save as PNG
+            </Button>
             <Button size="sm" variant="destructive" onClick={deleteSelected} className="w-full text-[10px] font-bold h-8">
               <Trash2 size={12} className="mr-1" /> Delete Selected
             </Button>

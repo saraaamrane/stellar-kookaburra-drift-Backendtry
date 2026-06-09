@@ -57,6 +57,9 @@ const PharmaNode = ({ id, data, selected }: NodeProps) => {
       !isIPC && "border-t-blue-400 border-b-red-400 border-x-slate-200"
     )}>
       <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-slate-400" />
+      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-slate-400" />
+      <Handle type="source" position={Position.Left} className="w-2 h-2 !bg-slate-400" />
+      <Handle type="source" position={Position.Right} className="w-2 h-2 !bg-slate-400" />
       
       <div className="text-center" onDoubleClick={handleDoubleClick}>
         {isIPC && (
@@ -88,8 +91,6 @@ const PharmaNode = ({ id, data, selected }: NodeProps) => {
           </div>
         )}
       </div>
-
-      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-slate-400" />
     </div>
   );
 };
