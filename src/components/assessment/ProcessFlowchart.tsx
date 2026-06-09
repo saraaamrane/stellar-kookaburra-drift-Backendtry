@@ -16,7 +16,7 @@ import {
   Panel,
   ReactFlowProvider,
   useReactFlow,
-  getRectOfNodes,
+  getNodesBounds,
   getTransformForBounds
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -101,7 +101,7 @@ const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) 
     const nodes = getNodes();
     if (nodes.length === 0) return;
 
-    const nodesBounds = getRectOfNodes(nodes);
+    const nodesBounds = getNodesBounds(nodes);
     const transform = getTransformForBounds(nodesBounds, 1024, 768, 0.5, 2);
 
     const viewport = document.querySelector('.react-flow__viewport') as HTMLElement;
