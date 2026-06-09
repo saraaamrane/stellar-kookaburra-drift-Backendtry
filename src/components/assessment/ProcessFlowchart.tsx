@@ -17,7 +17,7 @@ import {
   ReactFlowProvider,
   useReactFlow,
   getNodesBounds,
-  getTransformForBounds
+  getViewportForBounds
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { ProjectData } from '@/types/assessment';
@@ -102,7 +102,7 @@ const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) 
     if (nodes.length === 0) return;
 
     const nodesBounds = getNodesBounds(nodes);
-    const transform = getTransformForBounds(nodesBounds, 1024, 768, 0.5, 2);
+    const { x, y, zoom } = getViewportForBounds(nodesBounds, 1024, 768, 0.5, 2, 0.1);
 
     const viewport = document.querySelector('.react-flow__viewport') as HTMLElement;
     if (!viewport) return;
@@ -115,7 +115,7 @@ const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) 
         style: {
           width: '1024px',
           height: '768px',
-          transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
+          transform: `translate(${x}px, ${y}px) scale(${zoom})`,
         },
       });
 
