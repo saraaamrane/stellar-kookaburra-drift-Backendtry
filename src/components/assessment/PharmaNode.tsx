@@ -56,10 +56,21 @@ const PharmaNode = ({ id, data, selected }: NodeProps) => {
       isIPC ? "bg-red-50 border-red-400" : "bg-white border-slate-200",
       !isIPC && "border-t-blue-400 border-b-red-400 border-x-slate-200"
     )}>
-      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-slate-400" />
-      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-slate-400" />
-      <Handle type="source" position={Position.Left} className="w-2 h-2 !bg-slate-400" />
-      <Handle type="source" position={Position.Right} className="w-2 h-2 !bg-slate-400" />
+      {/* Top Handles */}
+      <Handle type="target" position={Position.Top} id="t-target" className="w-2 h-2 !bg-slate-400" />
+      <Handle type="source" position={Position.Top} id="t-source" className="w-2 h-2 !bg-slate-400 opacity-0" />
+      
+      {/* Bottom Handles */}
+      <Handle type="source" position={Position.Bottom} id="b-source" className="w-2 h-2 !bg-slate-400" />
+      <Handle type="target" position={Position.Bottom} id="b-target" className="w-2 h-2 !bg-slate-400 opacity-0" />
+      
+      {/* Left Handles */}
+      <Handle type="target" position={Position.Left} id="l-target" className="w-2 h-2 !bg-slate-400" />
+      <Handle type="source" position={Position.Left} id="l-source" className="w-2 h-2 !bg-slate-400 opacity-0" />
+      
+      {/* Right Handles */}
+      <Handle type="source" position={Position.Right} id="r-source" className="w-2 h-2 !bg-slate-400" />
+      <Handle type="target" position={Position.Right} id="r-target" className="w-2 h-2 !bg-slate-400 opacity-0" />
       
       <div className="text-center" onDoubleClick={handleDoubleClick}>
         {isIPC && (

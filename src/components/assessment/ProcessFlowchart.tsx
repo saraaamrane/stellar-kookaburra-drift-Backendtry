@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { 
   ReactFlow, 
   Background, 
@@ -23,7 +23,7 @@ import '@xyflow/react/dist/style.css';
 import { ProjectData } from '@/types/assessment';
 import PharmaNode from './PharmaNode';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, MousePointer2, Download, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, MousePointer2, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { toPng } from 'html-to-image';
 
@@ -37,7 +37,7 @@ const nodeTypes = {
 };
 
 const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) => {
-  const { getNodes, getEdges } = useReactFlow();
+  const { getNodes } = useReactFlow();
   const nodes = useMemo(() => project.nodes || [], [project.nodes]);
   const edges = useMemo(() => project.edges || [], [project.edges]);
 
@@ -101,20 +101,22 @@ const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) 
     const nodes = getNodes();
     if (nodes.length === 0) return;
 
-    const nodesBounds = getNodesBounds(nodes);
-    const { x, y, zoom } = getViewportForBounds(nodesBounds, 1024, 768, 0.5, 2, 0.1);
-
     const viewport = document.querySelector('.react-flow__viewport') as HTMLElement;
     if (!viewport) return;
+
+    const nodesBounds = getNodesBounds(nodes);
+    const width = nodesBounds.width + 200;
+    const height = nodesBounds.height + 200;
+    const { x, y, zoom } = getViewportForBounds(nodesBounds, width, height, 0.5, 2, 0.1);
 
     try {
       const dataUrl = await toPng(viewport, {
         backgroundColor: '#f8fafc',
-        width: 1024,
-        height: 768,
+        width: width,
+        height: height,
         style: {
-          width: '1024px',
-          height: '768px',
+          width: `${width}px`,
+          height: `${height}px`,
           transform: `translate(${x}px, ${y}px) scale(${zoom})`,
         },
       });
@@ -183,15 +185,6 @@ const FlowInner: React.FC<ProcessFlowchartProps> = ({ project, updateProject }) 
             <li>• <strong>Double-click label to edit</strong></li>
             <li>• Select and press Delete to remove</li>
           </ul>
-        </Panel>
-
-        <Panel position="bottom-center" className="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Interactive Flow Mode</span>
-          </div>
-          <div className="h-4 w-[1px] bg-white/20" />
-          <p className="text-[10px] font-bold text-white/60">Build your process map exactly like the reference image.</p>
         </Panel>
       </ReactFlow>
     </div>
