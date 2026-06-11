@@ -68,7 +68,7 @@ const CollaboratorManager: React.FC<CollaboratorManagerProps> = ({ assessmentId,
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="rounded-xl font-bold border-2">
+        <Button variant="secondary" className="rounded-xl font-bold border-2 border-white/20 bg-white/10 text-white hover:bg-white/20">
           <Users className="mr-2 h-4 w-4" /> Collaborators
         </Button>
       </DialogTrigger>

@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ProjectData } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, ChevronLeft, ShieldCheck, Printer, Link, Check, BarChart3, Save, ArrowLeft, TrendingUp, Search } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ShieldCheck, Printer, Link, Check, BarChart3, Save, ArrowLeft, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -130,7 +130,6 @@ const AssessmentWizard = () => {
 
         if (data && !error) {
           const loadedProject = data.project_data as ProjectData;
-          // Ensure nodes and edges are initialized for older assessments
           setProject({
             ...loadedProject,
             nodes: loadedProject.nodes || [],
@@ -342,20 +341,14 @@ const AssessmentWizard = () => {
             {assessmentId && (
               <CollaboratorManager assessmentId={assessmentId} isOwner={isOwner} />
             )}
-            <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/10">
-              <div className={cn("w-2 h-2 rounded-full", isSaving ? "bg-amber-500 animate-pulse" : "bg-emerald-500")} />
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/60">
-                {isSaving ? "Saving..." : "Cloud Synced"}
-              </span>
-            </div>
             <Button 
-              variant="ghost" 
+              variant="secondary" 
               onClick={saveToCloud} 
               disabled={isSaving}
-              className="text-white hover:bg-white/10 font-bold"
+              className="rounded-xl font-bold bg-primary text-white hover:bg-primary/90 border-2 border-white/10"
             >
               <Save className={cn("mr-2 h-4 w-4", isSaving && "animate-spin")} />
-              Manual Save
+              {isSaving ? "Saving..." : "Manual Save"}
             </Button>
           </div>
         </div>
@@ -375,10 +368,10 @@ const AssessmentWizard = () => {
               <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Step {currentPhase + 1} of {PHASES.length}</p>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" size="lg" onClick={() => setCurrentPhase(p => Math.max(0, p - 1))} disabled={currentPhase === 0} className="rounded-xl font-black border-2 h-12">
+              <Button variant="outline" size="lg" onClick={() => setCurrentPhase(p => Math.max(0, p - 1))} disabled={currentPhase === 0} className="rounded-xl font-black border-2 h-12 opacity-100">
                 <ChevronLeft className="mr-2 h-5 w-5" /> BACK
               </Button>
-              <Button size="lg" onClick={() => setCurrentPhase(p => Math.min(PHASES.length - 1, p + 1))} disabled={currentPhase === PHASES.length - 1} className="rounded-xl bg-slate-900 hover:bg-slate-800 shadow-xl font-black px-10 h-12">
+              <Button size="lg" onClick={() => setCurrentPhase(p => Math.min(PHASES.length - 1, p + 1))} disabled={currentPhase === PHASES.length - 1} className="rounded-xl bg-slate-900 hover:bg-slate-800 shadow-xl font-black px-10 h-12 opacity-100">
                 CONTINUE <ChevronRight className="ml-2 h-5 w-5" />
               </Button>
             </div>

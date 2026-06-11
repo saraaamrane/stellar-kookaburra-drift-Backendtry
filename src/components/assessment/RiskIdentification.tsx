@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { ProjectData, RiskItem } from '@/types/assessment';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, AlertCircle, Layers, Search } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, AlertCircle, Layers, Search, FilterX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import RiskForm from './RiskForm';
 import RiskLibraryDialog from './RiskLibraryDialog';
@@ -17,6 +18,9 @@ interface RiskIdentificationProps {
 
 const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, updateProject, category }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterSeverity, setFilterSeverity] = useState<string>('all');
+  const [filterOccurrence, setFilterOccurrence] = useState<string>('all');
+  const [filterDetection, setFilterDetection] = useState<string>('all');
 
   const addRisk = (template?: Partial<RiskItem>) => {
     const newRisk: RiskItem = {
@@ -42,7 +46,6 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
       preventiveActions: template?.preventiveActions || '',
       correctiveActions: template?.correctiveActions || ''
     };
-    // Append new risk to the end to maintain entry order
     updateProject({ risks: [...project.risks, newRisk] });
   };
 
@@ -60,7 +63,6 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
     const { id, ...rest } = risk;
     addRisk({
       ...rest,
-      // Clear specific outcome fields but keep identification fields
       cqa: '',
       effect: '',
       severity: 1,
@@ -75,17 +77,33 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
     });
   };
 
+  const resetFilters = () => {
+    setSearchQuery('');
+    setFilterSeverity('all');
+    setFilterOccurrence('all');
+    setFilterDetection('all');
+  };
+
   const filteredRisks = project.risks
     .filter(r => r.category === category)
-    .filter(r => 
-      r.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.failureMode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.cqa.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    .filter(r => {
+      const matchesSearch = 
+        r.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.failureMode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.cqa.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesSeverity = filterSeverity === 'all' || r.severity.toString() === filterSeverity;
+      const matchesOccurrence = filterOccurrence === 'all' || r.occurrence.toString() === filterOccurrence;
+      const matchesDetection = filterDetection === 'all' || r.detection.toString() === filterDetection;
+
+      return matchesSearch && matchesSeverity && matchesOccurrence && matchesDetection;
+    });
+
+  const hasActiveFilters = searchQuery !== '' || filterSeverity !== 'all' || filterOccurrence !== 'all' || filterDetection !== 'all';
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
-      <div className="bg-white p-6 rounded-3xl border-2 shadow-sm sticky top-4 z-10 space-y-4">
+      <div className="bg-white p-6 rounded-3xl border-2 shadow-sm sticky top-4 z-10 space-y-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className={cn(
@@ -107,14 +125,73 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
           </div>
         </div>
 
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-          <Input 
-            placeholder={`Search ${category.toLowerCase()} risks by name, failure mode, or CQA...`}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 h-12 rounded-2xl border-2 bg-slate-50/50 focus:bg-white transition-all"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-5 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <Input 
+              placeholder={`Search ${category.toLowerCase()} risks...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-12 h-12 rounded-2xl border-2 bg-slate-50/50 focus:bg-white transition-all"
+            />
+          </div>
+          
+          <div className="md:col-span-2">
+            <Select value={filterSeverity} onValueChange={setFilterSeverity}>
+              <SelectTrigger className="h-12 rounded-2xl border-2 bg-slate-50/50">
+                <SelectValue placeholder="Severity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Severity</SelectItem>
+                <SelectItem value="1">1 - Low</SelectItem>
+                <SelectItem value="2">2 - Moderate</SelectItem>
+                <SelectItem value="3">3 - High</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="md:col-span-2">
+            <Select value={filterOccurrence} onValueChange={setFilterOccurrence}>
+              <SelectTrigger className="h-12 rounded-2xl border-2 bg-slate-50/50">
+                <SelectValue placeholder="Occurrence" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Occurrence</SelectItem>
+                <SelectItem value="1">1 - Rare</SelectItem>
+                <SelectItem value="2">2 - Occasional</SelectItem>
+                <SelectItem value="3">3 - Frequent</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="md:col-span-2">
+            <Select value={filterDetection} onValueChange={setFilterDetection}>
+              <SelectTrigger className="h-12 rounded-2xl border-2 bg-slate-50/50">
+                <SelectValue placeholder="Detection" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Detection</SelectItem>
+                <SelectItem value="1">1 - Easy</SelectItem>
+                <SelectItem value="2">2 - Moderate</SelectItem>
+                <SelectItem value="3">3 - Difficult</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="md:col-span-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={resetFilters}
+              disabled={!hasActiveFilters}
+              className={cn(
+                "h-12 w-full rounded-2xl border-2",
+                hasActiveFilters ? "text-red-500 border-red-100 bg-red-50 hover:bg-red-100" : "text-slate-300 border-slate-100"
+              )}
+            >
+              <FilterX size={20} />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -123,10 +200,10 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
           <div className="text-center py-32 bg-slate-50 rounded-[2rem] border-4 border-dashed border-slate-200">
             <Layers className="mx-auto text-slate-200 mb-4" size={64} />
             <p className="text-slate-400 font-bold text-xl">
-              {searchQuery ? "No matching risks found." : `No ${category.toLowerCase()} risks identified yet.`}
+              {hasActiveFilters ? "No matching risks found with current filters." : `No ${category.toLowerCase()} risks identified yet.`}
             </p>
             <p className="text-slate-300 text-sm mt-2">
-              {searchQuery ? "Try a different search term." : "Click the button above to start your assessment."}
+              {hasActiveFilters ? "Try adjusting your search or filters." : "Click the button above to start your assessment."}
             </p>
           </div>
         ) : (
