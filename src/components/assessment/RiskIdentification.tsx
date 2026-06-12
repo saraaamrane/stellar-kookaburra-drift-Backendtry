@@ -46,7 +46,8 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
       preventiveActions: template?.preventiveActions || '',
       correctiveActions: template?.correctiveActions || ''
     };
-    updateProject({ risks: [...project.risks, newRisk] });
+    // Prepend new risk to the top of the list
+    updateProject({ risks: [newRisk, ...project.risks] });
   };
 
   const updateRisk = (id: string, updates: Partial<RiskItem>) => {
@@ -114,12 +115,17 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
             </div>
             <div>
               <h3 className="text-2xl font-black text-slate-900 tracking-tight">{category} Risk Identification</h3>
-              <p className="text-sm text-slate-500 font-medium">Integrated FMEA + HAZOP Analysis</p>
             </div>
           </div>
           <div className="flex gap-3">
             <RiskLibraryDialog category={category} onImport={addRisk} />
-            <Button onClick={() => addRisk()} className="rounded-2xl font-black h-14 px-8 shadow-xl hover:scale-105 transition-transform">
+            <Button 
+              onClick={() => addRisk()} 
+              className={cn(
+                "rounded-2xl font-black h-14 px-8 shadow-xl hover:scale-105 transition-transform",
+                category === 'Material' ? "bg-blue-600 hover:bg-blue-700" : "bg-purple-600 hover:bg-purple-700"
+              )}
+            >
               <Plus className="mr-2 h-6 w-6" /> ADD NEW {category.toUpperCase()} RISK
             </Button>
           </div>
@@ -141,7 +147,7 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
               <SelectTrigger className="h-12 rounded-2xl border-2 bg-slate-50/50">
                 <SelectValue placeholder="Severity" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white z-50">
                 <SelectItem value="all">All Severity</SelectItem>
                 <SelectItem value="1">1 - Low</SelectItem>
                 <SelectItem value="2">2 - Moderate</SelectItem>
@@ -155,7 +161,7 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
               <SelectTrigger className="h-12 rounded-2xl border-2 bg-slate-50/50">
                 <SelectValue placeholder="Occurrence" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white z-50">
                 <SelectItem value="all">All Occurrence</SelectItem>
                 <SelectItem value="1">1 - Rare</SelectItem>
                 <SelectItem value="2">2 - Occasional</SelectItem>
@@ -169,7 +175,7 @@ const RiskIdentification: React.FC<RiskIdentificationProps> = ({ project, update
               <SelectTrigger className="h-12 rounded-2xl border-2 bg-slate-50/50">
                 <SelectValue placeholder="Detection" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white z-50">
                 <SelectItem value="all">All Detection</SelectItem>
                 <SelectItem value="1">1 - Easy</SelectItem>
                 <SelectItem value="2">2 - Moderate</SelectItem>
