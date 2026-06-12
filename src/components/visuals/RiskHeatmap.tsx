@@ -47,20 +47,6 @@ const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ risks }) => {
           </React.Fragment>
         ))}
       </div>
-      <div className="mt-4 flex justify-center gap-4">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 bg-red-100 border border-red-200 rounded" />
-          <span className="text-[10px] font-bold text-slate-500 uppercase">High</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 bg-amber-100 border border-amber-200 rounded" />
-          <span className="text-[10px] font-bold text-slate-500 uppercase">Medium</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 bg-emerald-100 border border-emerald-200 rounded" />
-          <span className="text-[10px] font-bold text-slate-500 uppercase">Low</span>
-        </div>
-      </div>
     </div>
   );
 };

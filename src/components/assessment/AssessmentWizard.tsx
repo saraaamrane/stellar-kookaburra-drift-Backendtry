@@ -371,7 +371,7 @@ const AssessmentWizard = () => {
               <Button variant="outline" size="lg" onClick={() => setCurrentPhase(p => Math.max(0, p - 1))} disabled={currentPhase === 0} className="rounded-xl font-black border-2 h-12">
                 <ChevronLeft className="mr-2 h-5 w-5" /> BACK
               </Button>
-              <Button size="lg" onClick={() => setCurrentPhase(p => Math.min(PHASES.length - 1, p + 1))} disabled={currentPhase === PHASES.length - 1} className="rounded-xl bg-slate-900 hover:bg-slate-800 shadow-xl font-black px-10 h-12 opacity-100">
+              <Button size="lg" onClick={() => setCurrentPhase(p => Math.min(PHASES.length - 1, p + 1))} disabled={currentPhase === PHASES.length - 1} className="rounded-xl bg-primary hover:bg-primary/90 shadow-xl font-black px-10 h-12 text-white">
                 CONTINUE <ChevronRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
